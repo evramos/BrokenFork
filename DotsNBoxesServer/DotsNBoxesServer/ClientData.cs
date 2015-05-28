@@ -15,7 +15,7 @@ namespace DotsNBoxesServer
         /// <summary>
         /// The ID of the client
         /// </summary>
-        public int ClientID;
+        public readonly int ClientID;
 
         /// <summary>
         /// Whether or not the client has signed into an authenticated user account
@@ -31,6 +31,16 @@ namespace DotsNBoxesServer
         /// Whether or not the client is currently in a game
         /// </summary>
         public bool IsInGame = false;
+
+        /// <summary>
+        /// The game the player is currently in
+        /// </summary>
+        public GameData CurrentGame;
+
+        /// <summary>
+        /// The queue of messages to send to the client from the current game
+        /// </summary>
+        public Queue<string> GameQueue = new Queue<string>();
 
         /// <summary>
         /// The RSA to use for the clients password transmissions

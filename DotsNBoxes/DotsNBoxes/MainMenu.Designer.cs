@@ -29,9 +29,12 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainMenu));
             this.timRefreshGameList = new System.Windows.Forms.Timer(this.components);
+            this.timRefreshLobby = new System.Windows.Forms.Timer(this.components);
             this.tcMainMenu = new DotsNBoxes.CustomTabControl();
             this.tbSelectServer = new System.Windows.Forms.TabPage();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.lblServerConnectError = new System.Windows.Forms.Label();
             this.txtServerName = new System.Windows.Forms.TextBox();
             this.lblServerName = new System.Windows.Forms.Label();
@@ -67,13 +70,27 @@
             this.lblGamesList = new System.Windows.Forms.Label();
             this.lbGameList = new System.Windows.Forms.ListBox();
             this.tcUserInfo = new System.Windows.Forms.TabControl();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.label2 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.listBox1 = new System.Windows.Forms.ListBox();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tbGameLobby = new System.Windows.Forms.TabPage();
+            this.lblVotesRequiredText = new System.Windows.Forms.Label();
+            this.lblVotesRequired = new System.Windows.Forms.Label();
+            this.lblVotesToStartText = new System.Windows.Forms.Label();
+            this.lblGameStatusText = new System.Windows.Forms.Label();
+            this.lblBoardSizeText = new System.Windows.Forms.Label();
+            this.lblNumberPlayersText = new System.Windows.Forms.Label();
+            this.lblLobbyNameText = new System.Windows.Forms.Label();
+            this.lblVotesToStart = new System.Windows.Forms.Label();
+            this.lblGameStatus = new System.Windows.Forms.Label();
+            this.lblBoardSize = new System.Windows.Forms.Label();
+            this.lblNumberPlayers = new System.Windows.Forms.Label();
+            this.lblLobbyName = new System.Windows.Forms.Label();
+            this.btnVoteStart = new System.Windows.Forms.Button();
+            this.lblInGameWaiting = new System.Windows.Forms.Label();
+            this.lblPlayers = new System.Windows.Forms.Label();
+            this.lblGameInfo = new System.Windows.Forms.Label();
+            this.lbPlayers = new System.Windows.Forms.ListBox();
+            this.btnExitGame = new System.Windows.Forms.Button();
+            this.lblGameLobby = new System.Windows.Forms.Label();
             this.tbAccountSettings = new System.Windows.Forms.TabPage();
             this.lblDeletePasswordError = new System.Windows.Forms.Label();
             this.txtDeletePassword = new System.Windows.Forms.TextBox();
@@ -84,20 +101,43 @@
             this.btnDeleteAccount = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.tbCreateGame = new System.Windows.Forms.TabPage();
+            this.txtGamePassword = new System.Windows.Forms.TextBox();
+            this.lblGamePassword = new System.Windows.Forms.Label();
+            this.rbNoPasswordProtect = new System.Windows.Forms.RadioButton();
+            this.rbPasswordProtect = new System.Windows.Forms.RadioButton();
+            this.lblPaswordProtect = new System.Windows.Forms.Label();
+            this.cbGridSize = new System.Windows.Forms.ComboBox();
+            this.lblGridSize = new System.Windows.Forms.Label();
+            this.lblCreateGameError = new System.Windows.Forms.Label();
+            this.btnReturnToList1 = new System.Windows.Forms.Button();
+            this.btnCreateDotsGame = new System.Windows.Forms.Button();
+            this.cbGameUsers = new System.Windows.Forms.ComboBox();
+            this.lblNumberOfUsers = new System.Windows.Forms.Label();
+            this.txtGameName = new System.Windows.Forms.TextBox();
+            this.lblPublicGameName = new System.Windows.Forms.Label();
+            this.lblCreateGame = new System.Windows.Forms.Label();
             this.tcMainMenu.SuspendLayout();
             this.tbSelectServer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tbLogin.SuspendLayout();
             this.pnCreateAccount.SuspendLayout();
             this.pnLogin.SuspendLayout();
             this.tbGameList.SuspendLayout();
             this.tcUserInfo.SuspendLayout();
-            this.tabPage2.SuspendLayout();
+            this.tbGameLobby.SuspendLayout();
             this.tbAccountSettings.SuspendLayout();
+            this.tbCreateGame.SuspendLayout();
             this.SuspendLayout();
             // 
             // timRefreshGameList
             // 
             this.timRefreshGameList.Interval = 1000;
+            this.timRefreshGameList.Tick += new System.EventHandler(this.timRefreshGameList_Tick);
+            // 
+            // timRefreshLobby
+            // 
+            this.timRefreshLobby.Interval = 500;
+            this.timRefreshLobby.Tick += new System.EventHandler(this.timRefreshLobby_Tick);
             // 
             // tcMainMenu
             // 
@@ -116,6 +156,7 @@
             // tbSelectServer
             // 
             this.tbSelectServer.BackColor = System.Drawing.SystemColors.Control;
+            this.tbSelectServer.Controls.Add(this.pictureBox1);
             this.tbSelectServer.Controls.Add(this.lblServerConnectError);
             this.tbSelectServer.Controls.Add(this.txtServerName);
             this.tbSelectServer.Controls.Add(this.lblServerName);
@@ -127,11 +168,22 @@
             this.tbSelectServer.TabIndex = 0;
             this.tbSelectServer.Text = "Select Server";
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackgroundImage = global::DotsNBoxes.Properties.Resources.logo_ver2;
+            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pictureBox1.Location = new System.Drawing.Point(27, 13);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(533, 200);
+            this.pictureBox1.TabIndex = 4;
+            this.pictureBox1.TabStop = false;
+            // 
             // lblServerConnectError
             // 
             this.lblServerConnectError.AutoSize = true;
             this.lblServerConnectError.ForeColor = System.Drawing.Color.Red;
-            this.lblServerConnectError.Location = new System.Drawing.Point(159, 171);
+            this.lblServerConnectError.Location = new System.Drawing.Point(159, 285);
             this.lblServerConnectError.Name = "lblServerConnectError";
             this.lblServerConnectError.Size = new System.Drawing.Size(11, 13);
             this.lblServerConnectError.TabIndex = 3;
@@ -140,7 +192,7 @@
             // 
             // txtServerName
             // 
-            this.txtServerName.Location = new System.Drawing.Point(160, 147);
+            this.txtServerName.Location = new System.Drawing.Point(160, 261);
             this.txtServerName.Name = "txtServerName";
             this.txtServerName.Size = new System.Drawing.Size(176, 20);
             this.txtServerName.TabIndex = 0;
@@ -149,7 +201,7 @@
             // lblServerName
             // 
             this.lblServerName.AutoSize = true;
-            this.lblServerName.Location = new System.Drawing.Point(157, 131);
+            this.lblServerName.Location = new System.Drawing.Point(157, 245);
             this.lblServerName.Name = "lblServerName";
             this.lblServerName.Size = new System.Drawing.Size(100, 13);
             this.lblServerName.TabIndex = 1;
@@ -157,7 +209,7 @@
             // 
             // btnSelectServer
             // 
-            this.btnSelectServer.Location = new System.Drawing.Point(342, 147);
+            this.btnSelectServer.Location = new System.Drawing.Point(342, 261);
             this.btnSelectServer.Name = "btnSelectServer";
             this.btnSelectServer.Size = new System.Drawing.Size(88, 20);
             this.btnSelectServer.TabIndex = 1;
@@ -401,6 +453,7 @@
             this.btnCreateGame.TabIndex = 7;
             this.btnCreateGame.Text = "Create Game";
             this.btnCreateGame.UseVisualStyleBackColor = true;
+            this.btnCreateGame.Click += new System.EventHandler(this.btnCreateGame_Click);
             // 
             // btnJoinGame
             // 
@@ -410,6 +463,7 @@
             this.btnJoinGame.TabIndex = 0;
             this.btnJoinGame.Text = "Join Game";
             this.btnJoinGame.UseVisualStyleBackColor = true;
+            this.btnJoinGame.Click += new System.EventHandler(this.btnJoinGame_Click);
             // 
             // lblGamesListKey
             // 
@@ -432,7 +486,7 @@
             // lblGamesListBoardSize
             // 
             this.lblGamesListBoardSize.AutoSize = true;
-            this.lblGamesListBoardSize.Location = new System.Drawing.Point(200, 24);
+            this.lblGamesListBoardSize.Location = new System.Drawing.Point(197, 24);
             this.lblGamesListBoardSize.Name = "lblGamesListBoardSize";
             this.lblGamesListBoardSize.Size = new System.Drawing.Size(58, 13);
             this.lblGamesListBoardSize.TabIndex = 4;
@@ -462,8 +516,6 @@
             this.lbGameList.Font = new System.Drawing.Font("Consolas", 9F);
             this.lbGameList.FormattingEnabled = true;
             this.lbGameList.ItemHeight = 14;
-            this.lbGameList.Items.AddRange(new object[] {
-            "(P) EFGHIJKLMNOPABCDEFGH   8X8      1/4"});
             this.lbGameList.Location = new System.Drawing.Point(10, 39);
             this.lbGameList.Name = "lbGameList";
             this.lbGameList.Size = new System.Drawing.Size(293, 228);
@@ -471,66 +523,12 @@
             // 
             // tcUserInfo
             // 
-            this.tcUserInfo.Controls.Add(this.tabPage2);
             this.tcUserInfo.Controls.Add(this.tabPage3);
             this.tcUserInfo.Location = new System.Drawing.Point(309, 6);
             this.tcUserInfo.Name = "tcUserInfo";
             this.tcUserInfo.SelectedIndex = 0;
             this.tcUserInfo.Size = new System.Drawing.Size(271, 261);
             this.tcUserInfo.TabIndex = 0;
-            // 
-            // tabPage2
-            // 
-            this.tabPage2.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPage2.Controls.Add(this.label2);
-            this.tabPage2.Controls.Add(this.button1);
-            this.tabPage2.Controls.Add(this.label1);
-            this.tabPage2.Controls.Add(this.listBox1);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(263, 235);
-            this.tabPage2.TabIndex = 0;
-            this.tabPage2.Text = "Users Online";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(168, 11);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(47, 13);
-            this.label2.TabIndex = 8;
-            this.label2.Text = "In Game";
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(117, 209);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(140, 23);
-            this.button1.TabIndex = 8;
-            this.button1.Text = "Stalk User";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 11);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(55, 13);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "Username";
-            // 
-            // listBox1
-            // 
-            this.listBox1.Font = new System.Drawing.Font("Consolas", 9F);
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 14;
-            this.listBox1.Items.AddRange(new object[] {
-            "AAAAAAAAAAAAAAAAAAAA   Yes"});
-            this.listBox1.Location = new System.Drawing.Point(6, 26);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(251, 172);
-            this.listBox1.TabIndex = 4;
             // 
             // tabPage3
             // 
@@ -545,12 +543,215 @@
             // tbGameLobby
             // 
             this.tbGameLobby.BackColor = System.Drawing.SystemColors.Control;
+            this.tbGameLobby.Controls.Add(this.lblVotesRequiredText);
+            this.tbGameLobby.Controls.Add(this.lblVotesRequired);
+            this.tbGameLobby.Controls.Add(this.lblVotesToStartText);
+            this.tbGameLobby.Controls.Add(this.lblGameStatusText);
+            this.tbGameLobby.Controls.Add(this.lblBoardSizeText);
+            this.tbGameLobby.Controls.Add(this.lblNumberPlayersText);
+            this.tbGameLobby.Controls.Add(this.lblLobbyNameText);
+            this.tbGameLobby.Controls.Add(this.lblVotesToStart);
+            this.tbGameLobby.Controls.Add(this.lblGameStatus);
+            this.tbGameLobby.Controls.Add(this.lblBoardSize);
+            this.tbGameLobby.Controls.Add(this.lblNumberPlayers);
+            this.tbGameLobby.Controls.Add(this.lblLobbyName);
+            this.tbGameLobby.Controls.Add(this.btnVoteStart);
+            this.tbGameLobby.Controls.Add(this.lblInGameWaiting);
+            this.tbGameLobby.Controls.Add(this.lblPlayers);
+            this.tbGameLobby.Controls.Add(this.lblGameInfo);
+            this.tbGameLobby.Controls.Add(this.lbPlayers);
+            this.tbGameLobby.Controls.Add(this.btnExitGame);
+            this.tbGameLobby.Controls.Add(this.lblGameLobby);
             this.tbGameLobby.Location = new System.Drawing.Point(4, 22);
             this.tbGameLobby.Name = "tbGameLobby";
             this.tbGameLobby.Padding = new System.Windows.Forms.Padding(3);
             this.tbGameLobby.Size = new System.Drawing.Size(586, 299);
             this.tbGameLobby.TabIndex = 3;
             this.tbGameLobby.Text = "Lobby";
+            // 
+            // lblVotesRequiredText
+            // 
+            this.lblVotesRequiredText.AutoSize = true;
+            this.lblVotesRequiredText.Location = new System.Drawing.Point(114, 138);
+            this.lblVotesRequiredText.Name = "lblVotesRequiredText";
+            this.lblVotesRequiredText.Size = new System.Drawing.Size(13, 13);
+            this.lblVotesRequiredText.TabIndex = 28;
+            this.lblVotesRequiredText.Text = "2";
+            // 
+            // lblVotesRequired
+            // 
+            this.lblVotesRequired.AutoSize = true;
+            this.lblVotesRequired.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblVotesRequired.Location = new System.Drawing.Point(12, 138);
+            this.lblVotesRequired.Name = "lblVotesRequired";
+            this.lblVotesRequired.Size = new System.Drawing.Size(98, 13);
+            this.lblVotesRequired.TabIndex = 27;
+            this.lblVotesRequired.Text = "Votes Required:";
+            // 
+            // lblVotesToStartText
+            // 
+            this.lblVotesToStartText.AutoSize = true;
+            this.lblVotesToStartText.Location = new System.Drawing.Point(114, 120);
+            this.lblVotesToStartText.Name = "lblVotesToStartText";
+            this.lblVotesToStartText.Size = new System.Drawing.Size(75, 13);
+            this.lblVotesToStartText.TabIndex = 26;
+            this.lblVotesToStartText.Text = "[VotesToStart]";
+            // 
+            // lblGameStatusText
+            // 
+            this.lblGameStatusText.AutoSize = true;
+            this.lblGameStatusText.Location = new System.Drawing.Point(114, 102);
+            this.lblGameStatusText.Name = "lblGameStatusText";
+            this.lblGameStatusText.Size = new System.Drawing.Size(71, 13);
+            this.lblGameStatusText.TabIndex = 25;
+            this.lblGameStatusText.Text = "[GameStatus]";
+            // 
+            // lblBoardSizeText
+            // 
+            this.lblBoardSizeText.AutoSize = true;
+            this.lblBoardSizeText.Location = new System.Drawing.Point(114, 84);
+            this.lblBoardSizeText.Name = "lblBoardSizeText";
+            this.lblBoardSizeText.Size = new System.Drawing.Size(61, 13);
+            this.lblBoardSizeText.TabIndex = 24;
+            this.lblBoardSizeText.Text = "[BoardSize]";
+            // 
+            // lblNumberPlayersText
+            // 
+            this.lblNumberPlayersText.AutoSize = true;
+            this.lblNumberPlayersText.Location = new System.Drawing.Point(114, 66);
+            this.lblNumberPlayersText.Name = "lblNumberPlayersText";
+            this.lblNumberPlayersText.Size = new System.Drawing.Size(84, 13);
+            this.lblNumberPlayersText.TabIndex = 23;
+            this.lblNumberPlayersText.Text = "[NumberPlayers]";
+            // 
+            // lblLobbyNameText
+            // 
+            this.lblLobbyNameText.AutoSize = true;
+            this.lblLobbyNameText.Location = new System.Drawing.Point(114, 48);
+            this.lblLobbyNameText.Name = "lblLobbyNameText";
+            this.lblLobbyNameText.Size = new System.Drawing.Size(70, 13);
+            this.lblLobbyNameText.TabIndex = 22;
+            this.lblLobbyNameText.Text = "[LobbyName]";
+            // 
+            // lblVotesToStart
+            // 
+            this.lblVotesToStart.AutoSize = true;
+            this.lblVotesToStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblVotesToStart.Location = new System.Drawing.Point(12, 120);
+            this.lblVotesToStart.Name = "lblVotesToStart";
+            this.lblVotesToStart.Size = new System.Drawing.Size(93, 13);
+            this.lblVotesToStart.TabIndex = 21;
+            this.lblVotesToStart.Text = "Votes To Start:";
+            // 
+            // lblGameStatus
+            // 
+            this.lblGameStatus.AutoSize = true;
+            this.lblGameStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblGameStatus.Location = new System.Drawing.Point(12, 102);
+            this.lblGameStatus.Name = "lblGameStatus";
+            this.lblGameStatus.Size = new System.Drawing.Size(83, 13);
+            this.lblGameStatus.TabIndex = 20;
+            this.lblGameStatus.Text = "Game Status:";
+            // 
+            // lblBoardSize
+            // 
+            this.lblBoardSize.AutoSize = true;
+            this.lblBoardSize.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblBoardSize.Location = new System.Drawing.Point(12, 84);
+            this.lblBoardSize.Name = "lblBoardSize";
+            this.lblBoardSize.Size = new System.Drawing.Size(72, 13);
+            this.lblBoardSize.TabIndex = 19;
+            this.lblBoardSize.Text = "Board Size:";
+            // 
+            // lblNumberPlayers
+            // 
+            this.lblNumberPlayers.AutoSize = true;
+            this.lblNumberPlayers.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblNumberPlayers.Location = new System.Drawing.Point(12, 66);
+            this.lblNumberPlayers.Name = "lblNumberPlayers";
+            this.lblNumberPlayers.Size = new System.Drawing.Size(83, 13);
+            this.lblNumberPlayers.TabIndex = 18;
+            this.lblNumberPlayers.Text = "# of Players: ";
+            // 
+            // lblLobbyName
+            // 
+            this.lblLobbyName.AutoSize = true;
+            this.lblLobbyName.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblLobbyName.Location = new System.Drawing.Point(12, 48);
+            this.lblLobbyName.Name = "lblLobbyName";
+            this.lblLobbyName.Size = new System.Drawing.Size(85, 13);
+            this.lblLobbyName.TabIndex = 17;
+            this.lblLobbyName.Text = "Lobby Name: ";
+            // 
+            // btnVoteStart
+            // 
+            this.btnVoteStart.Location = new System.Drawing.Point(317, 241);
+            this.btnVoteStart.Name = "btnVoteStart";
+            this.btnVoteStart.Size = new System.Drawing.Size(119, 23);
+            this.btnVoteStart.TabIndex = 16;
+            this.btnVoteStart.Text = "Vote Start";
+            this.btnVoteStart.UseVisualStyleBackColor = true;
+            this.btnVoteStart.Click += new System.EventHandler(this.btnVoteStart_Click);
+            // 
+            // lblInGameWaiting
+            // 
+            this.lblInGameWaiting.AutoSize = true;
+            this.lblInGameWaiting.Location = new System.Drawing.Point(314, 221);
+            this.lblInGameWaiting.Name = "lblInGameWaiting";
+            this.lblInGameWaiting.Size = new System.Drawing.Size(137, 13);
+            this.lblInGameWaiting.TabIndex = 14;
+            this.lblInGameWaiting.Text = "(I) = In game, (W) = Waiting";
+            // 
+            // lblPlayers
+            // 
+            this.lblPlayers.AutoSize = true;
+            this.lblPlayers.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
+            this.lblPlayers.Location = new System.Drawing.Point(314, 27);
+            this.lblPlayers.Name = "lblPlayers";
+            this.lblPlayers.Size = new System.Drawing.Size(62, 17);
+            this.lblPlayers.TabIndex = 13;
+            this.lblPlayers.Text = "Players";
+            // 
+            // lblGameInfo
+            // 
+            this.lblGameInfo.AutoSize = true;
+            this.lblGameInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.5F, System.Drawing.FontStyle.Bold);
+            this.lblGameInfo.Location = new System.Drawing.Point(11, 27);
+            this.lblGameInfo.Name = "lblGameInfo";
+            this.lblGameInfo.Size = new System.Drawing.Size(82, 17);
+            this.lblGameInfo.TabIndex = 12;
+            this.lblGameInfo.Text = "Game Info";
+            // 
+            // lbPlayers
+            // 
+            this.lbPlayers.Font = new System.Drawing.Font("Consolas", 9F);
+            this.lbPlayers.FormattingEnabled = true;
+            this.lbPlayers.ItemHeight = 14;
+            this.lbPlayers.Location = new System.Drawing.Point(317, 46);
+            this.lbPlayers.Name = "lbPlayers";
+            this.lbPlayers.SelectionMode = System.Windows.Forms.SelectionMode.None;
+            this.lbPlayers.Size = new System.Drawing.Size(251, 172);
+            this.lbPlayers.TabIndex = 9;
+            // 
+            // btnExitGame
+            // 
+            this.btnExitGame.Location = new System.Drawing.Point(449, 241);
+            this.btnExitGame.Name = "btnExitGame";
+            this.btnExitGame.Size = new System.Drawing.Size(119, 23);
+            this.btnExitGame.TabIndex = 4;
+            this.btnExitGame.Text = "Exit Lobby";
+            this.btnExitGame.UseVisualStyleBackColor = true;
+            this.btnExitGame.Click += new System.EventHandler(this.btnExitGame_Click);
+            // 
+            // lblGameLobby
+            // 
+            this.lblGameLobby.AutoSize = true;
+            this.lblGameLobby.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblGameLobby.Location = new System.Drawing.Point(7, 3);
+            this.lblGameLobby.Name = "lblGameLobby";
+            this.lblGameLobby.Size = new System.Drawing.Size(122, 25);
+            this.lblGameLobby.TabIndex = 3;
+            this.lblGameLobby.Text = "Game Loby";
             // 
             // tbAccountSettings
             // 
@@ -647,6 +848,21 @@
             // tbCreateGame
             // 
             this.tbCreateGame.BackColor = System.Drawing.SystemColors.Control;
+            this.tbCreateGame.Controls.Add(this.txtGamePassword);
+            this.tbCreateGame.Controls.Add(this.lblGamePassword);
+            this.tbCreateGame.Controls.Add(this.rbNoPasswordProtect);
+            this.tbCreateGame.Controls.Add(this.rbPasswordProtect);
+            this.tbCreateGame.Controls.Add(this.lblPaswordProtect);
+            this.tbCreateGame.Controls.Add(this.cbGridSize);
+            this.tbCreateGame.Controls.Add(this.lblGridSize);
+            this.tbCreateGame.Controls.Add(this.lblCreateGameError);
+            this.tbCreateGame.Controls.Add(this.btnReturnToList1);
+            this.tbCreateGame.Controls.Add(this.btnCreateDotsGame);
+            this.tbCreateGame.Controls.Add(this.cbGameUsers);
+            this.tbCreateGame.Controls.Add(this.lblNumberOfUsers);
+            this.tbCreateGame.Controls.Add(this.txtGameName);
+            this.tbCreateGame.Controls.Add(this.lblPublicGameName);
+            this.tbCreateGame.Controls.Add(this.lblCreateGame);
             this.tbCreateGame.Location = new System.Drawing.Point(4, 22);
             this.tbCreateGame.Name = "tbCreateGame";
             this.tbCreateGame.Padding = new System.Windows.Forms.Padding(3);
@@ -654,19 +870,172 @@
             this.tbCreateGame.TabIndex = 5;
             this.tbCreateGame.Text = "Create Game";
             // 
+            // txtGamePassword
+            // 
+            this.txtGamePassword.Enabled = false;
+            this.txtGamePassword.Location = new System.Drawing.Point(12, 229);
+            this.txtGamePassword.Name = "txtGamePassword";
+            this.txtGamePassword.PasswordChar = '•';
+            this.txtGamePassword.Size = new System.Drawing.Size(233, 20);
+            this.txtGamePassword.TabIndex = 5;
+            // 
+            // lblGamePassword
+            // 
+            this.lblGamePassword.AutoSize = true;
+            this.lblGamePassword.Location = new System.Drawing.Point(9, 213);
+            this.lblGamePassword.Name = "lblGamePassword";
+            this.lblGamePassword.Size = new System.Drawing.Size(87, 13);
+            this.lblGamePassword.TabIndex = 29;
+            this.lblGamePassword.Text = "Game Password:";
+            // 
+            // rbNoPasswordProtect
+            // 
+            this.rbNoPasswordProtect.AutoSize = true;
+            this.rbNoPasswordProtect.Checked = true;
+            this.rbNoPasswordProtect.Location = new System.Drawing.Point(73, 186);
+            this.rbNoPasswordProtect.Name = "rbNoPasswordProtect";
+            this.rbNoPasswordProtect.Size = new System.Drawing.Size(39, 17);
+            this.rbNoPasswordProtect.TabIndex = 4;
+            this.rbNoPasswordProtect.TabStop = true;
+            this.rbNoPasswordProtect.Text = "No";
+            this.rbNoPasswordProtect.UseVisualStyleBackColor = true;
+            // 
+            // rbPasswordProtect
+            // 
+            this.rbPasswordProtect.AutoSize = true;
+            this.rbPasswordProtect.Location = new System.Drawing.Point(12, 186);
+            this.rbPasswordProtect.Name = "rbPasswordProtect";
+            this.rbPasswordProtect.Size = new System.Drawing.Size(43, 17);
+            this.rbPasswordProtect.TabIndex = 3;
+            this.rbPasswordProtect.Text = "Yes";
+            this.rbPasswordProtect.UseVisualStyleBackColor = true;
+            this.rbPasswordProtect.CheckedChanged += new System.EventHandler(this.rbPasswordProtect_CheckedChanged);
+            // 
+            // lblPaswordProtect
+            // 
+            this.lblPaswordProtect.AutoSize = true;
+            this.lblPaswordProtect.Location = new System.Drawing.Point(9, 168);
+            this.lblPaswordProtect.Name = "lblPaswordProtect";
+            this.lblPaswordProtect.Size = new System.Drawing.Size(124, 13);
+            this.lblPaswordProtect.TabIndex = 25;
+            this.lblPaswordProtect.Text = "Password Protect Game:";
+            // 
+            // cbGridSize
+            // 
+            this.cbGridSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbGridSize.FormattingEnabled = true;
+            this.cbGridSize.Items.AddRange(new object[] {
+            "4X4",
+            "6X6",
+            "8X8"});
+            this.cbGridSize.Location = new System.Drawing.Point(12, 139);
+            this.cbGridSize.Name = "cbGridSize";
+            this.cbGridSize.Size = new System.Drawing.Size(233, 21);
+            this.cbGridSize.TabIndex = 2;
+            // 
+            // lblGridSize
+            // 
+            this.lblGridSize.AutoSize = true;
+            this.lblGridSize.Location = new System.Drawing.Point(9, 123);
+            this.lblGridSize.Name = "lblGridSize";
+            this.lblGridSize.Size = new System.Drawing.Size(52, 13);
+            this.lblGridSize.TabIndex = 23;
+            this.lblGridSize.Text = "Grid Size:";
+            // 
+            // lblCreateGameError
+            // 
+            this.lblCreateGameError.ForeColor = System.Drawing.Color.Red;
+            this.lblCreateGameError.Location = new System.Drawing.Point(9, 288);
+            this.lblCreateGameError.Name = "lblCreateGameError";
+            this.lblCreateGameError.Size = new System.Drawing.Size(244, 45);
+            this.lblCreateGameError.TabIndex = 22;
+            this.lblCreateGameError.Text = "*";
+            this.lblCreateGameError.Visible = false;
+            // 
+            // btnReturnToList1
+            // 
+            this.btnReturnToList1.Location = new System.Drawing.Point(12, 258);
+            this.btnReturnToList1.Name = "btnReturnToList1";
+            this.btnReturnToList1.Size = new System.Drawing.Size(114, 23);
+            this.btnReturnToList1.TabIndex = 7;
+            this.btnReturnToList1.Text = "Return to List";
+            this.btnReturnToList1.UseVisualStyleBackColor = true;
+            this.btnReturnToList1.Click += new System.EventHandler(this.btnReturnToList_Click);
+            // 
+            // btnCreateDotsGame
+            // 
+            this.btnCreateDotsGame.Location = new System.Drawing.Point(131, 258);
+            this.btnCreateDotsGame.Name = "btnCreateDotsGame";
+            this.btnCreateDotsGame.Size = new System.Drawing.Size(114, 23);
+            this.btnCreateDotsGame.TabIndex = 6;
+            this.btnCreateDotsGame.Text = "Create Game";
+            this.btnCreateDotsGame.UseVisualStyleBackColor = true;
+            this.btnCreateDotsGame.Click += new System.EventHandler(this.btnCreateDotsGame_Click);
+            // 
+            // cbGameUsers
+            // 
+            this.cbGameUsers.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbGameUsers.FormattingEnabled = true;
+            this.cbGameUsers.Items.AddRange(new object[] {
+            "2",
+            "3",
+            "4"});
+            this.cbGameUsers.Location = new System.Drawing.Point(12, 94);
+            this.cbGameUsers.Name = "cbGameUsers";
+            this.cbGameUsers.Size = new System.Drawing.Size(233, 21);
+            this.cbGameUsers.TabIndex = 1;
+            // 
+            // lblNumberOfUsers
+            // 
+            this.lblNumberOfUsers.AutoSize = true;
+            this.lblNumberOfUsers.Location = new System.Drawing.Point(9, 78);
+            this.lblNumberOfUsers.Name = "lblNumberOfUsers";
+            this.lblNumberOfUsers.Size = new System.Drawing.Size(89, 13);
+            this.lblNumberOfUsers.TabIndex = 17;
+            this.lblNumberOfUsers.Text = "Number of Users:";
+            // 
+            // txtGameName
+            // 
+            this.txtGameName.Location = new System.Drawing.Point(12, 49);
+            this.txtGameName.Name = "txtGameName";
+            this.txtGameName.Size = new System.Drawing.Size(233, 20);
+            this.txtGameName.TabIndex = 0;
+            this.txtGameName.TabStop = false;
+            // 
+            // lblPublicGameName
+            // 
+            this.lblPublicGameName.AutoSize = true;
+            this.lblPublicGameName.Location = new System.Drawing.Point(9, 33);
+            this.lblPublicGameName.Name = "lblPublicGameName";
+            this.lblPublicGameName.Size = new System.Drawing.Size(68, 13);
+            this.lblPublicGameName.TabIndex = 13;
+            this.lblPublicGameName.Text = "Lobby name:";
+            // 
+            // lblCreateGame
+            // 
+            this.lblCreateGame.AutoSize = true;
+            this.lblCreateGame.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCreateGame.Location = new System.Drawing.Point(7, 3);
+            this.lblCreateGame.Name = "lblCreateGame";
+            this.lblCreateGame.Size = new System.Drawing.Size(140, 25);
+            this.lblCreateGame.TabIndex = 2;
+            this.lblCreateGame.Text = "Create Game";
+            // 
             // MainMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(597, 326);
             this.Controls.Add(this.tcMainMenu);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(613, 365);
             this.MinimumSize = new System.Drawing.Size(613, 365);
             this.Name = "MainMenu";
-            this.Text = "Dots N Boxes";
+            this.Text = "Dots & Boxes";
             this.tcMainMenu.ResumeLayout(false);
             this.tbSelectServer.ResumeLayout(false);
             this.tbSelectServer.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tbLogin.ResumeLayout(false);
             this.tbLogin.PerformLayout();
             this.pnCreateAccount.ResumeLayout(false);
@@ -676,10 +1045,12 @@
             this.tbGameList.ResumeLayout(false);
             this.tbGameList.PerformLayout();
             this.tcUserInfo.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
-            this.tabPage2.PerformLayout();
+            this.tbGameLobby.ResumeLayout(false);
+            this.tbGameLobby.PerformLayout();
             this.tbAccountSettings.ResumeLayout(false);
             this.tbAccountSettings.PerformLayout();
+            this.tbCreateGame.ResumeLayout(false);
+            this.tbCreateGame.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -721,14 +1092,9 @@
         private System.Windows.Forms.Label lblGamesList;
         private System.Windows.Forms.ListBox lbGameList;
         private System.Windows.Forms.TabControl tcUserInfo;
-        private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.Timer timRefreshGameList;
         private System.Windows.Forms.TabPage tbGameLobby;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.Label lblLoginAccountError;
         private System.Windows.Forms.Button btnAccountSettings;
         private System.Windows.Forms.TabPage tbAccountSettings;
@@ -741,6 +1107,42 @@
         private System.Windows.Forms.Label lblDeleteUsername;
         private System.Windows.Forms.Label lblDeletePasswordError;
         private System.Windows.Forms.TabPage tbCreateGame;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Label lblPublicGameName;
+        private System.Windows.Forms.Label lblCreateGame;
+        private System.Windows.Forms.TextBox txtGamePassword;
+        private System.Windows.Forms.Label lblGamePassword;
+        private System.Windows.Forms.RadioButton rbNoPasswordProtect;
+        private System.Windows.Forms.RadioButton rbPasswordProtect;
+        private System.Windows.Forms.Label lblPaswordProtect;
+        private System.Windows.Forms.ComboBox cbGridSize;
+        private System.Windows.Forms.Label lblGridSize;
+        private System.Windows.Forms.Label lblCreateGameError;
+        private System.Windows.Forms.Button btnReturnToList1;
+        private System.Windows.Forms.Button btnCreateDotsGame;
+        private System.Windows.Forms.ComboBox cbGameUsers;
+        private System.Windows.Forms.Label lblNumberOfUsers;
+        private System.Windows.Forms.TextBox txtGameName;
+        private System.Windows.Forms.Label lblGameLobby;
+        private System.Windows.Forms.Timer timRefreshLobby;
+        private System.Windows.Forms.Button btnExitGame;
+        private System.Windows.Forms.Label lblPlayers;
+        private System.Windows.Forms.Label lblGameInfo;
+        private System.Windows.Forms.ListBox lbPlayers;
+        private System.Windows.Forms.Label lblVotesToStartText;
+        private System.Windows.Forms.Label lblGameStatusText;
+        private System.Windows.Forms.Label lblBoardSizeText;
+        private System.Windows.Forms.Label lblNumberPlayersText;
+        private System.Windows.Forms.Label lblLobbyNameText;
+        private System.Windows.Forms.Label lblVotesToStart;
+        private System.Windows.Forms.Label lblGameStatus;
+        private System.Windows.Forms.Label lblBoardSize;
+        private System.Windows.Forms.Label lblNumberPlayers;
+        private System.Windows.Forms.Label lblLobbyName;
+        private System.Windows.Forms.Button btnVoteStart;
+        private System.Windows.Forms.Label lblInGameWaiting;
+        private System.Windows.Forms.Label lblVotesRequiredText;
+        private System.Windows.Forms.Label lblVotesRequired;
 
     }
 }

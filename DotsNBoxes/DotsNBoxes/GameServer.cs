@@ -27,6 +27,11 @@ namespace DotsNBoxes
         private const int PACKET_BUFFER_SIZE = 1460;
 
         /// <summary>
+        /// The length of game names plus their lock status
+        /// </summary>
+        private const int GAME_NAME_LENGTH = 27;
+
+        /// <summary>
         /// The socket to communicate with the game server on
         /// </summary>
         private static Socket serverSocket;
@@ -303,6 +308,234 @@ namespace DotsNBoxes
 
         #endregion
 
+        #region Game Utilites (Pre-lobby)
+
+        /// <summary>
+        /// Asks the server for a list of available games
+        /// </summary>
+        /// <returns>A list of games ready to join</returns>
+        public static List<ListItem> ListGames()
+        {
+            //Ask the server to list all of the games
+            string listGames = "GAME LIST\r\n\r\n";
+            serverSocket.Send(Encoding.UTF8.GetBytes(listGames));
+
+            //Read in the server's response
+            string gameList = ServerRead();
+
+            //If the game list response is not okay, return null
+            if (!ResponceIsOkay(gameList))
+            {
+                return null;
+            }
+
+            //Split the game list at each new line
+            string[] gameLines = gameList.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            //If there is not at least one game return null
+            if(gameLines.Length < 2)
+            {
+                return null;
+            }
+
+            //Generate a list of the games sent to us by the server
+            List<ListItem> gameListItems = new List<ListItem>();
+            for(int curGame = 1; curGame < gameLines.Length; curGame++)
+            {
+                //Split the current game line into information about the current game
+                string[] gameInfo = gameLines[curGame].Split(',');
+
+                //Parse out a server game object from the information provided by the server
+                ServerGame gameToAdd = new ServerGame()
+                {
+                    ID = int.Parse(gameInfo[0]),
+                    Name = gameInfo[1],
+                    MapSize = (GridSize)Enum.Parse(typeof(GridSize), gameInfo[2]),
+                    MaxPlayers = int.Parse(gameInfo[4]),
+                    IsFull = (int.Parse(gameInfo[4]) - int.Parse(gameInfo[3]) <= 0),
+                    PassProtected = bool.Parse(gameInfo[5])
+                };
+
+                //Generate list text for the current game
+                string listText = (gameToAdd.PassProtected ? "(L)" : "(O)") + " " + gameToAdd.Name;
+                while(listText.Length < GAME_NAME_LENGTH) { listText += " "; }
+                if(gameToAdd.MapSize == GridSize.FourByFour) { listText += "4X4"; }
+                else if (gameToAdd.MapSize == GridSize.SixBySix) { listText += "6X6"; }
+                else { listText += "8X8"; }
+                listText += "       " + gameInfo[3] + "/" + gameInfo[4];
+
+                //Add the current game to the list of games
+                ListItem newGame = new ListItem()
+                {
+                    Text = listText,
+                    Value = gameToAdd
+                };
+                gameListItems.Add(newGame);
+            }
+
+            //Return the list of games we just generated
+            return gameListItems;
+        }
+
+        /// <summary>
+        /// Asks the server to create a game
+        /// </summary>
+        /// <param name="name">The name to create the game with</param>
+        /// <param name="maxPlayers">The player cap to create the game with</param>
+        /// <param name="gameSize">The grid size to create the game with</param>
+        /// <param name="passwordProtect">Whether or not the game should be password protected</param>
+        /// <param name="password">The password to create the game with (if applicable)</param>
+        /// <returns>Whether or not the game got created properly</returns>
+        public static bool CreateGame(string name, string maxPlayers, string gameSize, bool passwordProtect, string password)
+        {
+            string enryptedPasswordText = "";
+            if(passwordProtect)
+            {
+                //Attempt to setup RSA
+                bool validRSA = InitiateRSA();
+
+                //If unable to setup RSA return error
+                if (!validRSA)
+                {
+                    return false;
+                }
+
+                //Encrypt the provided password with RSA
+                byte[] plaintextPassword = Encoding.UTF8.GetBytes(password);
+                byte[] encryptedPassword = rsaEncryption.Encrypt(plaintextPassword, false);
+                enryptedPasswordText = Convert.ToBase64String(encryptedPassword);
+            }
+
+            //Ask the server to create a game
+            string gameCreate = "GAME CREATE\r\n" + name + "\r\n" + maxPlayers + "\r\n" + gameSize + "\r\n" +
+                (passwordProtect ? enryptedPasswordText + "\r\n" : "") + "\r\n";
+            serverSocket.Send(Encoding.UTF8.GetBytes(gameCreate));
+
+            //Read in the server's response
+            string gameCreateStatus = ServerRead();
+
+            //If the game list response is not okay, return null
+            if (!ResponceIsOkay(gameCreateStatus))
+            {
+                return false;
+            }
+
+            //Return whether or not creating the game was successful
+            string response = gameCreateStatus.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)[1];
+            return (response == "SUCCESS");
+        }
+
+        /// <summary>
+        /// Asks the server to join a game
+        /// </summary>
+        /// <param name="gameToJoin">The game on the server to join</param>
+        /// <param name="password">The password of the game to join</param>
+        /// <returns>The status of joining the game</returns>
+        public static GameResponse JoinGame(ServerGame gameToJoin, string password)
+        {
+            //If not password was provided, send "NOPASS"
+            if(string.IsNullOrEmpty(password))
+            {
+                password = "NOPASS";
+            }
+            
+            //Attempt to setup RSA
+            bool validRSA = InitiateRSA();
+
+            //If unable to setup RSA return error
+            if (!validRSA)
+            {
+                return GameResponse.Error;
+            }
+
+            //Encrypt the provided password with RSA
+            byte[] plaintextPassword = Encoding.UTF8.GetBytes(password);
+            byte[] encryptedPassword = rsaEncryption.Encrypt(plaintextPassword, false);
+            string enryptedPasswordText = Convert.ToBase64String(encryptedPassword);
+
+            //Ask the server to create a game
+            string gameJoin = "GAME JOIN\r\n" + gameToJoin.ID + "\r\n" + enryptedPasswordText + "\r\n\r\n";
+            serverSocket.Send(Encoding.UTF8.GetBytes(gameJoin));
+
+            //Read in the server's response
+            string gameJoinStatus = ServerRead();
+
+            //If the game list response is not okay, return null
+            if (!ResponceIsOkay(gameJoinStatus))
+            {
+                return GameResponse.Error;
+            }
+
+            //Return whatever the server told us
+            string response = gameJoinStatus.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)[1];
+            if (response == "SUCCESS")
+            {
+                return GameResponse.Success;
+            }
+            else if(response == "INCORRECT PASSWORD")
+            {
+                return GameResponse.InvalidPassword;
+            }
+            else if(response == "GAME FULL")
+            {
+                return GameResponse.GameFull;
+            }
+            else
+            {
+                return GameResponse.Error;
+            }
+        }
+
+        #endregion
+
+        #region Game Utilities (Post-lobby)
+
+        /// <summary>
+        /// Asks the server to exit the current game
+        /// </summary>
+        public static bool ExitGame()
+        {
+            //Ask the server to list all of the games
+            string exitGame = "GAME EXIT\r\n\r\n";
+            serverSocket.Send(Encoding.UTF8.GetBytes(exitGame));
+
+            //Read in the server's response
+            string gameExitStatus = ServerRead();
+
+            //Return whether or not the exit was successful
+            return gameExitStatus == "SUCCESS\r\n\r\n";
+        }
+
+        /// <summary>
+        /// Pings the game server for a game update
+        /// </summary>
+        /// <returns>The servers response to the ping</returns>
+        public static string GamePing()
+        {
+            //Ping the server
+            string exitGame = "PING\r\n\r\n";
+            serverSocket.Send(Encoding.UTF8.GetBytes(exitGame));
+
+            //Return the servers response to the ping
+            return ServerRead();
+        }
+
+        /// <summary>
+        /// Pings the game server for a game update
+        /// </summary>
+        /// <returns>The servers response to the ping</returns>
+        public static string GameVote()
+        {
+            //Ping the server
+            string exitGame = "GAME VOTE\r\n\r\n";
+            serverSocket.Send(Encoding.UTF8.GetBytes(exitGame));
+
+            //Return the servers response to the ping
+            return ServerRead();
+        }
+
+        #endregion
+
         /// <summary>
         /// Reads a single response from the server
         /// </summary>
@@ -392,6 +625,22 @@ namespace DotsNBoxes
     }
 
     /// <summary>
+    /// Represents a single list box item
+    /// </summary>
+    class ListItem
+    {
+        /// <summary>
+        /// The text to display in the listbox
+        /// </summary>
+        public string Text { get; set; }
+        
+        /// <summary>
+        /// The value of the textbox
+        /// </summary>
+        public object Value { get; set; }
+    }
+
+    /// <summary>
     /// All of the possible responses when connecting to a server
     /// </summary>
     enum ConnectionResponse
@@ -412,5 +661,23 @@ namespace DotsNBoxes
         Success,
         AuthenticationFailed,
         Error
+    }
+
+    enum GameResponse
+    {
+        Success,
+        InvalidPassword,
+        GameFull,
+        Error
+    }
+
+    /// <summary>
+    /// An enumeration of the allowable grid sizes
+    /// </summary>
+    enum GridSize
+    {
+        FourByFour,
+        SixBySix,
+        EightByEight
     }
 }

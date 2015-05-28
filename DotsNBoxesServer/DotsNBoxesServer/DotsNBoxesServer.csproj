@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientData.cs" />
+    <Compile Include="GameData.cs" />
     <Compile Include="GameServer.cs" />
     <Compile Include="PasswordHasher.cs" />
     <Compile Include="Program.cs" />

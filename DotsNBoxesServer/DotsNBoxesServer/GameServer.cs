@@ -33,6 +33,16 @@ namespace DotsNBoxesServer
         private List<ClientData> ConnectedClients = new List<ClientData>();
 
         /// <summary>
+        /// The ID to set the next game to
+        /// </summary>
+        private int NextGameID = 0;
+
+        /// <summary>
+        /// A list of all of the games available to join
+        /// </summary>
+        private List<GameData> Games = new List<GameData>();
+
+        /// <summary>
         /// Creates a game server with given settings
         /// </summary>
         /// <param name="serverSettings">The settings to run the game server with</param>
@@ -72,6 +82,11 @@ namespace DotsNBoxesServer
                 Console.WriteLine("Unable to bind listener to localhost");
                 return;
             }
+
+            //Create some default games on the server
+            Games.Add(new GameData(NextGameID++, "Default", 4, GridSize.FourByFour, null));
+            Games.Add(new GameData(NextGameID++, "Default", 4, GridSize.SixBySix, null));
+            Games.Add(new GameData(NextGameID++, "Default", 4, GridSize.EightByEight, null));
 
             //Start listening for connections
             while(true)
@@ -119,6 +134,13 @@ namespace DotsNBoxesServer
                     //If no bytes were read the client disconnected, kill the current thread
                     if(bytesRead == 0)
                     {
+                        //If the client is in a game, remove the client from the game
+                        if (clientInfo.IsInGame)
+                        {
+                            clientInfo.CurrentGame.RemovePlayer(clientInfo);
+                        }
+
+                        //Clean up the clients trash
                         clientSocket.Close();
                         Console.WriteLine("Client Disconnected: " + clientInfo.GetBestID());
                         return;
@@ -134,46 +156,44 @@ namespace DotsNBoxesServer
                         break;
                     }
                 }
-
-                //If the client is not in a game process their request using the request parser
-                if(!clientInfo.IsInGame)
+                                
+                //Process the clients request
+                string serverResponse;
+                try
                 {
-                    //Process the clients request
-                    string serverResponce;
-                    try
+                    //If the client is not in a game process their request using the request parser
+                    if(!clientInfo.IsInGame)
                     {
-                        serverResponce = ProcessRequest(currentRequest, clientInfo);
-                    }
-                    catch
-                    {
-                        serverResponce = CurrentServerSettings.VersionNumber.ToString() + " UKNOWN, BAD REQUEST\r\n\r\n";
+                        serverResponse = ProcessRequest(currentRequest, clientInfo);
                     }
 
-                    //Convert the response into bytes and send it to the client
-                    byte[] responce = Encoding.UTF8.GetBytes(serverResponce);
-                    clientSocket.Send(responce);
+                    //Otherwise pass the user request off to their game object
+                    else
+                    {
+                        serverResponse = clientInfo.CurrentGame.ProcessRequest(currentRequest, clientInfo);
+                    }
+                }
+                catch
+                {
+                    serverResponse = CurrentServerSettings.VersionNumber.ToString() + " UKNOWN, BAD REQUEST\r\n\r\n";
                 }
 
-                //Otherwise pass the user request off to their game object
-                else
-                {
-                    throw new NotImplementedException("Game code unimplemented");
-                }
-                
-                
+                //Convert the response into bytes and send it to the client
+                byte[] response = Encoding.UTF8.GetBytes(serverResponse);
+                clientSocket.Send(response);
             }
         }
 
         /// <summary>
         /// Processes a non-in-game client request
         /// </summary>
-        /// <param name="reuqest">The request provided by the client</param>
+        /// <param name="request">The request provided by the client</param>
         /// <param name="clientInfo">The clients information object</param>
         /// <returns>A response to send to the client</returns>
-        public string ProcessRequest(string reuqest, ClientData clientInfo)
+        public string ProcessRequest(string request, ClientData clientInfo)
         {
             //Read in the header of the clients request
-            string[] requestHeader = reuqest.Substring(0, reuqest.IndexOf("\r\n")).Split(' ');
+            string[] requestHeader = request.Substring(0, request.IndexOf("\r\n")).Split(' ');
 
             //If the request does not have at least two parts, immediately return bad request
             if(requestHeader.Length < 2)
@@ -228,9 +248,9 @@ namespace DotsNBoxesServer
                 if (requestHeader[1] == "CHECKNAME")
                 {
                     //Extract the username to check from the request
-                    int usernameStart  = reuqest.IndexOf("\r\n") + 2;
-                    int usernameLength = reuqest.IndexOf("\r\n\r\n") - usernameStart;
-                    string username = reuqest.Substring(usernameStart, usernameLength);
+                    int usernameStart  = request.IndexOf("\r\n") + 2;
+                    int usernameLength = request.IndexOf("\r\n\r\n") - usernameStart;
+                    string username = request.Substring(usernameStart, usernameLength);
 
                     //Use the UserDatabase utility to check availability
                     string usernameCheck = UserDatabase.CheckAvailable(username);
@@ -246,7 +266,7 @@ namespace DotsNBoxesServer
                     if(clientInfo.RSA != null)
                     {
                         //Parse out the username and password provided by the client
-                        string[] requestLines = reuqest.Split(new string[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+                        string[] requestLines = request.Split(new string[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
                         string username = requestLines[1];
                         byte[] encryptedPassword = Convert.FromBase64String(requestLines[2]);
                         byte[] decryptedPassword = clientInfo.RSA.Decrypt(encryptedPassword, false);
@@ -273,7 +293,7 @@ namespace DotsNBoxesServer
                     if (clientInfo.RSA != null)
                     {
                         //Parse out the username and password provided by the client
-                        string[] requestLines = reuqest.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                        string[] requestLines = request.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                         string username = requestLines[1];
                         byte[] encryptedPassword = Convert.FromBase64String(requestLines[2]);
                         byte[] decryptedPassword = clientInfo.RSA.Decrypt(encryptedPassword, false);
@@ -300,7 +320,7 @@ namespace DotsNBoxesServer
                     if (clientInfo.RSA != null)
                     {
                         //Parse out the username and password provided by the client
-                        string[] requestLines = reuqest.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                        string[] requestLines = request.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                         string username = requestLines[1];
                         byte[] encryptedPassword = Convert.FromBase64String(requestLines[2]);
                         byte[] decryptedPassword = clientInfo.RSA.Decrypt(encryptedPassword, false);
@@ -330,28 +350,137 @@ namespace DotsNBoxesServer
             //If the user request starts with "GAME", process the second part of the request as a game utility
             else if (requestHeader[0] == "GAME")
             {
-                //
+                //If the requested game option is list games, append a list of the active games to the response
                 if (requestHeader[1] == "LIST")
                 {
-
+                    //Append a list of all the games to the response
+                    foreach(GameData currentGame in Games)
+                    {
+                        currentResponse += currentGame.GameID.ToString() + "," + currentGame.GameName + "," +
+                            currentGame.GameSize.ToString() + "," + currentGame.NumberOfPlayers.ToString() + "," +
+                            currentGame.MaxPlayers.ToString() + "," + currentGame.PasswordProtected.ToString() + "\r\n";
+                    }
+                    currentResponse += "\r\n\r\n";
                 }
 
-                //
+                //If the requested game option is create, create a new game with parameters provided by the client
                 else if (requestHeader[1] == "CREATE")
                 {
+                    //Parse out the different parts of the create request
+                    string[] requestLines = request.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
 
+                    //If all of the required parameter are in the request create a new game with them
+                    if(requestLines.Length >= 4)
+                    {
+                        //Parse out the name of the game
+                        string gameName = requestLines[1];
+
+                        //Attempt to parse out the max players in the game
+                        int maxPlayers = 0;
+                        if(!int.TryParse(requestLines[2], out maxPlayers) || maxPlayers < 2 || maxPlayers > 4)
+                        {
+                            currentResponse += "INVALID MAX\r\n\r\n";
+                            return currentResponse;
+                        }
+
+                        //Attempt to parse board size
+                        GridSize gameSize;
+                        if(requestLines[3] == "4X4")
+                        {
+                            gameSize = GridSize.FourByFour;
+                        }
+                        else if (requestLines[3] == "6X6")
+                        {
+                            gameSize = GridSize.SixBySix;
+                        }
+                        else if (requestLines[3] == "8X8")
+                        {
+                            gameSize = GridSize.EightByEight;
+                        }
+                        else
+                        {
+                            currentResponse += "INVALID GAMESIZE\r\n\r\n";
+                            return currentResponse;
+                        }
+
+                        //If a password parameter was included, decrypt the provided password
+                        string password = null;
+                        if(requestLines.Length > 4)
+                        {
+                            byte[] encryptedPassword = Convert.FromBase64String(requestLines[4]);
+                            byte[] decryptedPassword = clientInfo.RSA.Decrypt(encryptedPassword, false);
+                            password = Encoding.UTF8.GetString(decryptedPassword);
+                        }
+
+                        //Create a new game with the parameters provided by the client
+                        GameData newGame = new GameData(NextGameID++, gameName, maxPlayers, gameSize, password);
+
+                        //Add the client to the game we just created
+                        newGame.AddPlayer(clientInfo, password);
+
+                        //Add the game we just created to the global list of games
+                        Games.Add(newGame);
+
+                        //The game was successfully created, return success
+                        currentResponse += "SUCCESS\r\n\r\n";
+                    }
+
+                    //Otherwise, add a missing parameters message to the response
+                    else
+                    {
+                        currentResponse += "MISSING PARAMETERS\r\n\r\n";
+                    }
                 }
 
-                //
+                //If the requested option is join, join the user to the requested game
                 else if (requestHeader[1] == "JOIN")
                 {
+                    //If the client is not authenticated, do not let them join a game
+                    if(!clientInfo.IsAuthenticated)
+                    {
+                        currentResponse += "AUTHENTICATION REQUIRED\r\n\r\n";
+                        return currentResponse;
+                    }
 
-                }
+                    //Parse out the game ID and password provided by the client
+                    string[] requestLines = request.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                    string providedGameID = requestLines[1];
+                    byte[] encryptedPassword = Convert.FromBase64String(requestLines[2]);
+                    byte[] decryptedPassword = clientInfo.RSA.Decrypt(encryptedPassword, false);
+                    string password = Encoding.UTF8.GetString(decryptedPassword);
 
-                //
-                else if (requestHeader[1] == "EXIT")
-                {
+                    //If the provided game ID is not valid, return invalid game ID
+                    int gameID;
+                    if(!int.TryParse(providedGameID, out gameID))
+                    {
+                        currentResponse += "INVALID GAMEID\r\n\r\n";
+                        return currentResponse;
+                    }
 
+                    //If the requested game does not exist, return invalid game
+                    GameData requestedGame = Games.FirstOrDefault((curGame) => curGame.GameID == gameID);
+                    if(requestedGame == null)
+                    {
+                        currentResponse += "INVALID GAME\r\n\r\n";
+                        return currentResponse;
+                    }
+
+                    //If the requested game has too many players in it, return game full
+                    if(requestedGame.NumberOfPlayers >= requestedGame.MaxPlayers)
+                    {
+                        currentResponse += "GAME FULL\r\n\r\n";
+                        return currentResponse;
+                    }
+
+                    //If the password provided by the player was incorrect, return incorrect password
+                    if(!requestedGame.AddPlayer(clientInfo, password))
+                    {
+                        currentResponse += "INCORRECT PASSWORD\r\n\r\n";
+                        return currentResponse;
+                    }
+
+                    //The player successfully joined the game, return success
+                    currentResponse += "SUCCESS\r\n\r\n";
                 }
 
                 //If the seconds part of the request is not a valid game utility, return a "BAD REQUEST" response
