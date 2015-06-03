@@ -32,9 +32,10 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainMenu));
             this.timRefreshGameList = new System.Windows.Forms.Timer(this.components);
             this.timRefreshLobby = new System.Windows.Forms.Timer(this.components);
+            this.timGameRefresh = new System.Windows.Forms.Timer(this.components);
             this.tcMainMenu = new DotsNBoxes.CustomTabControl();
             this.tbSelectServer = new System.Windows.Forms.TabPage();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.lblServerConnectError = new System.Windows.Forms.Label();
             this.txtServerName = new System.Windows.Forms.TextBox();
             this.lblServerName = new System.Windows.Forms.Label();
@@ -65,7 +66,6 @@
             this.btnJoinGame = new System.Windows.Forms.Button();
             this.lblGamesListKey = new System.Windows.Forms.Label();
             this.lblGameListPlayers = new System.Windows.Forms.Label();
-            this.lblGamesListBoardSize = new System.Windows.Forms.Label();
             this.lblGamesListName = new System.Windows.Forms.Label();
             this.lblGamesList = new System.Windows.Forms.Label();
             this.lbGameList = new System.Windows.Forms.ListBox();
@@ -75,17 +75,12 @@
             this.lblVotesRequiredText = new System.Windows.Forms.Label();
             this.lblVotesRequired = new System.Windows.Forms.Label();
             this.lblVotesToStartText = new System.Windows.Forms.Label();
-            this.lblGameStatusText = new System.Windows.Forms.Label();
-            this.lblBoardSizeText = new System.Windows.Forms.Label();
             this.lblNumberPlayersText = new System.Windows.Forms.Label();
             this.lblLobbyNameText = new System.Windows.Forms.Label();
             this.lblVotesToStart = new System.Windows.Forms.Label();
-            this.lblGameStatus = new System.Windows.Forms.Label();
-            this.lblBoardSize = new System.Windows.Forms.Label();
             this.lblNumberPlayers = new System.Windows.Forms.Label();
             this.lblLobbyName = new System.Windows.Forms.Label();
             this.btnVoteStart = new System.Windows.Forms.Button();
-            this.lblInGameWaiting = new System.Windows.Forms.Label();
             this.lblPlayers = new System.Windows.Forms.Label();
             this.lblGameInfo = new System.Windows.Forms.Label();
             this.lbPlayers = new System.Windows.Forms.ListBox();
@@ -101,24 +96,33 @@
             this.btnDeleteAccount = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.tbCreateGame = new System.Windows.Forms.TabPage();
-            this.txtGamePassword = new System.Windows.Forms.TextBox();
-            this.lblGamePassword = new System.Windows.Forms.Label();
-            this.rbNoPasswordProtect = new System.Windows.Forms.RadioButton();
-            this.rbPasswordProtect = new System.Windows.Forms.RadioButton();
-            this.lblPaswordProtect = new System.Windows.Forms.Label();
-            this.cbGridSize = new System.Windows.Forms.ComboBox();
-            this.lblGridSize = new System.Windows.Forms.Label();
             this.lblCreateGameError = new System.Windows.Forms.Label();
             this.btnReturnToList1 = new System.Windows.Forms.Button();
             this.btnCreateDotsGame = new System.Windows.Forms.Button();
-            this.cbGameUsers = new System.Windows.Forms.ComboBox();
-            this.lblNumberOfUsers = new System.Windows.Forms.Label();
             this.txtGameName = new System.Windows.Forms.TextBox();
             this.lblPublicGameName = new System.Windows.Forms.Label();
             this.lblCreateGame = new System.Windows.Forms.Label();
+            this.tbGameField = new System.Windows.Forms.TabPage();
+            this.lblYourTurn = new System.Windows.Forms.Label();
+            this.lblCurrentPlayerText = new System.Windows.Forms.Label();
+            this.lblYouAreText = new System.Windows.Forms.Label();
+            this.lblCurrentPlayer = new System.Windows.Forms.Label();
+            this.lblYouAre = new System.Windows.Forms.Label();
+            this.btnSquare9 = new System.Windows.Forms.Button();
+            this.btnSquare3 = new System.Windows.Forms.Button();
+            this.btnSquare6 = new System.Windows.Forms.Button();
+            this.btnSquare8 = new System.Windows.Forms.Button();
+            this.pnCrossV2 = new System.Windows.Forms.Panel();
+            this.pnCrossV1 = new System.Windows.Forms.Panel();
+            this.btnSquare2 = new System.Windows.Forms.Button();
+            this.btnSquare5 = new System.Windows.Forms.Button();
+            this.btnSquare7 = new System.Windows.Forms.Button();
+            this.pnCrossH2 = new System.Windows.Forms.Panel();
+            this.btnSquare4 = new System.Windows.Forms.Button();
+            this.pnCrossH1 = new System.Windows.Forms.Panel();
+            this.btnSquare1 = new System.Windows.Forms.Button();
             this.tcMainMenu.SuspendLayout();
             this.tbSelectServer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tbLogin.SuspendLayout();
             this.pnCreateAccount.SuspendLayout();
             this.pnLogin.SuspendLayout();
@@ -127,6 +131,7 @@
             this.tbGameLobby.SuspendLayout();
             this.tbAccountSettings.SuspendLayout();
             this.tbCreateGame.SuspendLayout();
+            this.tbGameField.SuspendLayout();
             this.SuspendLayout();
             // 
             // timRefreshGameList
@@ -139,6 +144,11 @@
             this.timRefreshLobby.Interval = 500;
             this.timRefreshLobby.Tick += new System.EventHandler(this.timRefreshLobby_Tick);
             // 
+            // timGameRefresh
+            // 
+            this.timGameRefresh.Interval = 200;
+            this.timGameRefresh.Tick += new System.EventHandler(this.timGameRefresh_Tick);
+            // 
             // tcMainMenu
             // 
             this.tcMainMenu.Controls.Add(this.tbSelectServer);
@@ -147,6 +157,7 @@
             this.tcMainMenu.Controls.Add(this.tbGameLobby);
             this.tcMainMenu.Controls.Add(this.tbAccountSettings);
             this.tcMainMenu.Controls.Add(this.tbCreateGame);
+            this.tcMainMenu.Controls.Add(this.tbGameField);
             this.tcMainMenu.Location = new System.Drawing.Point(1, 1);
             this.tcMainMenu.Name = "tcMainMenu";
             this.tcMainMenu.SelectedIndex = 0;
@@ -156,7 +167,7 @@
             // tbSelectServer
             // 
             this.tbSelectServer.BackColor = System.Drawing.SystemColors.Control;
-            this.tbSelectServer.Controls.Add(this.pictureBox1);
+            this.tbSelectServer.Controls.Add(this.label1);
             this.tbSelectServer.Controls.Add(this.lblServerConnectError);
             this.tbSelectServer.Controls.Add(this.txtServerName);
             this.tbSelectServer.Controls.Add(this.lblServerName);
@@ -168,16 +179,15 @@
             this.tbSelectServer.TabIndex = 0;
             this.tbSelectServer.Text = "Select Server";
             // 
-            // pictureBox1
+            // label1
             // 
-            this.pictureBox1.BackgroundImage = global::DotsNBoxes.Properties.Resources.logo_ver2;
-            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox1.Location = new System.Drawing.Point(27, 13);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(533, 200);
-            this.pictureBox1.TabIndex = 4;
-            this.pictureBox1.TabStop = false;
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Consolas", 60F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(31, 102);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(524, 94);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "Tic Tac Toe";
             // 
             // lblServerConnectError
             // 
@@ -423,7 +433,6 @@
             this.tbGameList.Controls.Add(this.btnJoinGame);
             this.tbGameList.Controls.Add(this.lblGamesListKey);
             this.tbGameList.Controls.Add(this.lblGameListPlayers);
-            this.tbGameList.Controls.Add(this.lblGamesListBoardSize);
             this.tbGameList.Controls.Add(this.lblGamesListName);
             this.tbGameList.Controls.Add(this.lblGamesList);
             this.tbGameList.Controls.Add(this.lbGameList);
@@ -483,15 +492,6 @@
             this.lblGameListPlayers.TabIndex = 5;
             this.lblGameListPlayers.Text = "Players";
             // 
-            // lblGamesListBoardSize
-            // 
-            this.lblGamesListBoardSize.AutoSize = true;
-            this.lblGamesListBoardSize.Location = new System.Drawing.Point(197, 24);
-            this.lblGamesListBoardSize.Name = "lblGamesListBoardSize";
-            this.lblGamesListBoardSize.Size = new System.Drawing.Size(58, 13);
-            this.lblGamesListBoardSize.TabIndex = 4;
-            this.lblGamesListBoardSize.Text = "Board Size";
-            // 
             // lblGamesListName
             // 
             this.lblGamesListName.AutoSize = true;
@@ -546,17 +546,12 @@
             this.tbGameLobby.Controls.Add(this.lblVotesRequiredText);
             this.tbGameLobby.Controls.Add(this.lblVotesRequired);
             this.tbGameLobby.Controls.Add(this.lblVotesToStartText);
-            this.tbGameLobby.Controls.Add(this.lblGameStatusText);
-            this.tbGameLobby.Controls.Add(this.lblBoardSizeText);
             this.tbGameLobby.Controls.Add(this.lblNumberPlayersText);
             this.tbGameLobby.Controls.Add(this.lblLobbyNameText);
             this.tbGameLobby.Controls.Add(this.lblVotesToStart);
-            this.tbGameLobby.Controls.Add(this.lblGameStatus);
-            this.tbGameLobby.Controls.Add(this.lblBoardSize);
             this.tbGameLobby.Controls.Add(this.lblNumberPlayers);
             this.tbGameLobby.Controls.Add(this.lblLobbyName);
             this.tbGameLobby.Controls.Add(this.btnVoteStart);
-            this.tbGameLobby.Controls.Add(this.lblInGameWaiting);
             this.tbGameLobby.Controls.Add(this.lblPlayers);
             this.tbGameLobby.Controls.Add(this.lblGameInfo);
             this.tbGameLobby.Controls.Add(this.lbPlayers);
@@ -572,7 +567,7 @@
             // lblVotesRequiredText
             // 
             this.lblVotesRequiredText.AutoSize = true;
-            this.lblVotesRequiredText.Location = new System.Drawing.Point(114, 138);
+            this.lblVotesRequiredText.Location = new System.Drawing.Point(114, 102);
             this.lblVotesRequiredText.Name = "lblVotesRequiredText";
             this.lblVotesRequiredText.Size = new System.Drawing.Size(13, 13);
             this.lblVotesRequiredText.TabIndex = 28;
@@ -582,7 +577,7 @@
             // 
             this.lblVotesRequired.AutoSize = true;
             this.lblVotesRequired.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblVotesRequired.Location = new System.Drawing.Point(12, 138);
+            this.lblVotesRequired.Location = new System.Drawing.Point(12, 102);
             this.lblVotesRequired.Name = "lblVotesRequired";
             this.lblVotesRequired.Size = new System.Drawing.Size(98, 13);
             this.lblVotesRequired.TabIndex = 27;
@@ -591,29 +586,11 @@
             // lblVotesToStartText
             // 
             this.lblVotesToStartText.AutoSize = true;
-            this.lblVotesToStartText.Location = new System.Drawing.Point(114, 120);
+            this.lblVotesToStartText.Location = new System.Drawing.Point(114, 84);
             this.lblVotesToStartText.Name = "lblVotesToStartText";
             this.lblVotesToStartText.Size = new System.Drawing.Size(75, 13);
             this.lblVotesToStartText.TabIndex = 26;
             this.lblVotesToStartText.Text = "[VotesToStart]";
-            // 
-            // lblGameStatusText
-            // 
-            this.lblGameStatusText.AutoSize = true;
-            this.lblGameStatusText.Location = new System.Drawing.Point(114, 102);
-            this.lblGameStatusText.Name = "lblGameStatusText";
-            this.lblGameStatusText.Size = new System.Drawing.Size(71, 13);
-            this.lblGameStatusText.TabIndex = 25;
-            this.lblGameStatusText.Text = "[GameStatus]";
-            // 
-            // lblBoardSizeText
-            // 
-            this.lblBoardSizeText.AutoSize = true;
-            this.lblBoardSizeText.Location = new System.Drawing.Point(114, 84);
-            this.lblBoardSizeText.Name = "lblBoardSizeText";
-            this.lblBoardSizeText.Size = new System.Drawing.Size(61, 13);
-            this.lblBoardSizeText.TabIndex = 24;
-            this.lblBoardSizeText.Text = "[BoardSize]";
             // 
             // lblNumberPlayersText
             // 
@@ -637,31 +614,11 @@
             // 
             this.lblVotesToStart.AutoSize = true;
             this.lblVotesToStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblVotesToStart.Location = new System.Drawing.Point(12, 120);
+            this.lblVotesToStart.Location = new System.Drawing.Point(12, 84);
             this.lblVotesToStart.Name = "lblVotesToStart";
             this.lblVotesToStart.Size = new System.Drawing.Size(93, 13);
             this.lblVotesToStart.TabIndex = 21;
             this.lblVotesToStart.Text = "Votes To Start:";
-            // 
-            // lblGameStatus
-            // 
-            this.lblGameStatus.AutoSize = true;
-            this.lblGameStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblGameStatus.Location = new System.Drawing.Point(12, 102);
-            this.lblGameStatus.Name = "lblGameStatus";
-            this.lblGameStatus.Size = new System.Drawing.Size(83, 13);
-            this.lblGameStatus.TabIndex = 20;
-            this.lblGameStatus.Text = "Game Status:";
-            // 
-            // lblBoardSize
-            // 
-            this.lblBoardSize.AutoSize = true;
-            this.lblBoardSize.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblBoardSize.Location = new System.Drawing.Point(12, 84);
-            this.lblBoardSize.Name = "lblBoardSize";
-            this.lblBoardSize.Size = new System.Drawing.Size(72, 13);
-            this.lblBoardSize.TabIndex = 19;
-            this.lblBoardSize.Text = "Board Size:";
             // 
             // lblNumberPlayers
             // 
@@ -685,22 +642,13 @@
             // 
             // btnVoteStart
             // 
-            this.btnVoteStart.Location = new System.Drawing.Point(317, 241);
+            this.btnVoteStart.Location = new System.Drawing.Point(317, 224);
             this.btnVoteStart.Name = "btnVoteStart";
             this.btnVoteStart.Size = new System.Drawing.Size(119, 23);
             this.btnVoteStart.TabIndex = 16;
             this.btnVoteStart.Text = "Vote Start";
             this.btnVoteStart.UseVisualStyleBackColor = true;
             this.btnVoteStart.Click += new System.EventHandler(this.btnVoteStart_Click);
-            // 
-            // lblInGameWaiting
-            // 
-            this.lblInGameWaiting.AutoSize = true;
-            this.lblInGameWaiting.Location = new System.Drawing.Point(314, 221);
-            this.lblInGameWaiting.Name = "lblInGameWaiting";
-            this.lblInGameWaiting.Size = new System.Drawing.Size(137, 13);
-            this.lblInGameWaiting.TabIndex = 14;
-            this.lblInGameWaiting.Text = "(I) = In game, (W) = Waiting";
             // 
             // lblPlayers
             // 
@@ -735,7 +683,7 @@
             // 
             // btnExitGame
             // 
-            this.btnExitGame.Location = new System.Drawing.Point(449, 241);
+            this.btnExitGame.Location = new System.Drawing.Point(449, 224);
             this.btnExitGame.Name = "btnExitGame";
             this.btnExitGame.Size = new System.Drawing.Size(119, 23);
             this.btnExitGame.TabIndex = 4;
@@ -848,18 +796,9 @@
             // tbCreateGame
             // 
             this.tbCreateGame.BackColor = System.Drawing.SystemColors.Control;
-            this.tbCreateGame.Controls.Add(this.txtGamePassword);
-            this.tbCreateGame.Controls.Add(this.lblGamePassword);
-            this.tbCreateGame.Controls.Add(this.rbNoPasswordProtect);
-            this.tbCreateGame.Controls.Add(this.rbPasswordProtect);
-            this.tbCreateGame.Controls.Add(this.lblPaswordProtect);
-            this.tbCreateGame.Controls.Add(this.cbGridSize);
-            this.tbCreateGame.Controls.Add(this.lblGridSize);
             this.tbCreateGame.Controls.Add(this.lblCreateGameError);
             this.tbCreateGame.Controls.Add(this.btnReturnToList1);
             this.tbCreateGame.Controls.Add(this.btnCreateDotsGame);
-            this.tbCreateGame.Controls.Add(this.cbGameUsers);
-            this.tbCreateGame.Controls.Add(this.lblNumberOfUsers);
             this.tbCreateGame.Controls.Add(this.txtGameName);
             this.tbCreateGame.Controls.Add(this.lblPublicGameName);
             this.tbCreateGame.Controls.Add(this.lblCreateGame);
@@ -870,82 +809,10 @@
             this.tbCreateGame.TabIndex = 5;
             this.tbCreateGame.Text = "Create Game";
             // 
-            // txtGamePassword
-            // 
-            this.txtGamePassword.Enabled = false;
-            this.txtGamePassword.Location = new System.Drawing.Point(12, 229);
-            this.txtGamePassword.Name = "txtGamePassword";
-            this.txtGamePassword.PasswordChar = '•';
-            this.txtGamePassword.Size = new System.Drawing.Size(233, 20);
-            this.txtGamePassword.TabIndex = 5;
-            // 
-            // lblGamePassword
-            // 
-            this.lblGamePassword.AutoSize = true;
-            this.lblGamePassword.Location = new System.Drawing.Point(9, 213);
-            this.lblGamePassword.Name = "lblGamePassword";
-            this.lblGamePassword.Size = new System.Drawing.Size(87, 13);
-            this.lblGamePassword.TabIndex = 29;
-            this.lblGamePassword.Text = "Game Password:";
-            // 
-            // rbNoPasswordProtect
-            // 
-            this.rbNoPasswordProtect.AutoSize = true;
-            this.rbNoPasswordProtect.Checked = true;
-            this.rbNoPasswordProtect.Location = new System.Drawing.Point(73, 186);
-            this.rbNoPasswordProtect.Name = "rbNoPasswordProtect";
-            this.rbNoPasswordProtect.Size = new System.Drawing.Size(39, 17);
-            this.rbNoPasswordProtect.TabIndex = 4;
-            this.rbNoPasswordProtect.TabStop = true;
-            this.rbNoPasswordProtect.Text = "No";
-            this.rbNoPasswordProtect.UseVisualStyleBackColor = true;
-            // 
-            // rbPasswordProtect
-            // 
-            this.rbPasswordProtect.AutoSize = true;
-            this.rbPasswordProtect.Location = new System.Drawing.Point(12, 186);
-            this.rbPasswordProtect.Name = "rbPasswordProtect";
-            this.rbPasswordProtect.Size = new System.Drawing.Size(43, 17);
-            this.rbPasswordProtect.TabIndex = 3;
-            this.rbPasswordProtect.Text = "Yes";
-            this.rbPasswordProtect.UseVisualStyleBackColor = true;
-            this.rbPasswordProtect.CheckedChanged += new System.EventHandler(this.rbPasswordProtect_CheckedChanged);
-            // 
-            // lblPaswordProtect
-            // 
-            this.lblPaswordProtect.AutoSize = true;
-            this.lblPaswordProtect.Location = new System.Drawing.Point(9, 168);
-            this.lblPaswordProtect.Name = "lblPaswordProtect";
-            this.lblPaswordProtect.Size = new System.Drawing.Size(124, 13);
-            this.lblPaswordProtect.TabIndex = 25;
-            this.lblPaswordProtect.Text = "Password Protect Game:";
-            // 
-            // cbGridSize
-            // 
-            this.cbGridSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbGridSize.FormattingEnabled = true;
-            this.cbGridSize.Items.AddRange(new object[] {
-            "4X4",
-            "6X6",
-            "8X8"});
-            this.cbGridSize.Location = new System.Drawing.Point(12, 139);
-            this.cbGridSize.Name = "cbGridSize";
-            this.cbGridSize.Size = new System.Drawing.Size(233, 21);
-            this.cbGridSize.TabIndex = 2;
-            // 
-            // lblGridSize
-            // 
-            this.lblGridSize.AutoSize = true;
-            this.lblGridSize.Location = new System.Drawing.Point(9, 123);
-            this.lblGridSize.Name = "lblGridSize";
-            this.lblGridSize.Size = new System.Drawing.Size(52, 13);
-            this.lblGridSize.TabIndex = 23;
-            this.lblGridSize.Text = "Grid Size:";
-            // 
             // lblCreateGameError
             // 
             this.lblCreateGameError.ForeColor = System.Drawing.Color.Red;
-            this.lblCreateGameError.Location = new System.Drawing.Point(9, 288);
+            this.lblCreateGameError.Location = new System.Drawing.Point(9, 106);
             this.lblCreateGameError.Name = "lblCreateGameError";
             this.lblCreateGameError.Size = new System.Drawing.Size(244, 45);
             this.lblCreateGameError.TabIndex = 22;
@@ -954,7 +821,7 @@
             // 
             // btnReturnToList1
             // 
-            this.btnReturnToList1.Location = new System.Drawing.Point(12, 258);
+            this.btnReturnToList1.Location = new System.Drawing.Point(12, 76);
             this.btnReturnToList1.Name = "btnReturnToList1";
             this.btnReturnToList1.Size = new System.Drawing.Size(114, 23);
             this.btnReturnToList1.TabIndex = 7;
@@ -964,35 +831,13 @@
             // 
             // btnCreateDotsGame
             // 
-            this.btnCreateDotsGame.Location = new System.Drawing.Point(131, 258);
+            this.btnCreateDotsGame.Location = new System.Drawing.Point(131, 76);
             this.btnCreateDotsGame.Name = "btnCreateDotsGame";
             this.btnCreateDotsGame.Size = new System.Drawing.Size(114, 23);
             this.btnCreateDotsGame.TabIndex = 6;
             this.btnCreateDotsGame.Text = "Create Game";
             this.btnCreateDotsGame.UseVisualStyleBackColor = true;
             this.btnCreateDotsGame.Click += new System.EventHandler(this.btnCreateDotsGame_Click);
-            // 
-            // cbGameUsers
-            // 
-            this.cbGameUsers.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbGameUsers.FormattingEnabled = true;
-            this.cbGameUsers.Items.AddRange(new object[] {
-            "2",
-            "3",
-            "4"});
-            this.cbGameUsers.Location = new System.Drawing.Point(12, 94);
-            this.cbGameUsers.Name = "cbGameUsers";
-            this.cbGameUsers.Size = new System.Drawing.Size(233, 21);
-            this.cbGameUsers.TabIndex = 1;
-            // 
-            // lblNumberOfUsers
-            // 
-            this.lblNumberOfUsers.AutoSize = true;
-            this.lblNumberOfUsers.Location = new System.Drawing.Point(9, 78);
-            this.lblNumberOfUsers.Name = "lblNumberOfUsers";
-            this.lblNumberOfUsers.Size = new System.Drawing.Size(89, 13);
-            this.lblNumberOfUsers.TabIndex = 17;
-            this.lblNumberOfUsers.Text = "Number of Users:";
             // 
             // txtGameName
             // 
@@ -1021,6 +866,234 @@
             this.lblCreateGame.TabIndex = 2;
             this.lblCreateGame.Text = "Create Game";
             // 
+            // tbGameField
+            // 
+            this.tbGameField.BackColor = System.Drawing.SystemColors.Control;
+            this.tbGameField.Controls.Add(this.lblYourTurn);
+            this.tbGameField.Controls.Add(this.lblCurrentPlayerText);
+            this.tbGameField.Controls.Add(this.lblYouAreText);
+            this.tbGameField.Controls.Add(this.lblCurrentPlayer);
+            this.tbGameField.Controls.Add(this.lblYouAre);
+            this.tbGameField.Controls.Add(this.btnSquare9);
+            this.tbGameField.Controls.Add(this.btnSquare3);
+            this.tbGameField.Controls.Add(this.btnSquare6);
+            this.tbGameField.Controls.Add(this.btnSquare8);
+            this.tbGameField.Controls.Add(this.pnCrossV2);
+            this.tbGameField.Controls.Add(this.pnCrossV1);
+            this.tbGameField.Controls.Add(this.btnSquare2);
+            this.tbGameField.Controls.Add(this.btnSquare5);
+            this.tbGameField.Controls.Add(this.btnSquare7);
+            this.tbGameField.Controls.Add(this.pnCrossH2);
+            this.tbGameField.Controls.Add(this.btnSquare4);
+            this.tbGameField.Controls.Add(this.pnCrossH1);
+            this.tbGameField.Controls.Add(this.btnSquare1);
+            this.tbGameField.Location = new System.Drawing.Point(4, 22);
+            this.tbGameField.Name = "tbGameField";
+            this.tbGameField.Padding = new System.Windows.Forms.Padding(3);
+            this.tbGameField.Size = new System.Drawing.Size(586, 299);
+            this.tbGameField.TabIndex = 6;
+            this.tbGameField.Text = "Game Display";
+            // 
+            // lblYourTurn
+            // 
+            this.lblYourTurn.AutoSize = true;
+            this.lblYourTurn.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F);
+            this.lblYourTurn.ForeColor = System.Drawing.Color.Red;
+            this.lblYourTurn.Location = new System.Drawing.Point(5, 49);
+            this.lblYourTurn.Name = "lblYourTurn";
+            this.lblYourTurn.Size = new System.Drawing.Size(126, 24);
+            this.lblYourTurn.TabIndex = 28;
+            this.lblYourTurn.Text = "It\'s Your Turn!";
+            this.lblYourTurn.Visible = false;
+            // 
+            // lblCurrentPlayerText
+            // 
+            this.lblCurrentPlayerText.AutoSize = true;
+            this.lblCurrentPlayerText.Location = new System.Drawing.Point(101, 30);
+            this.lblCurrentPlayerText.Name = "lblCurrentPlayerText";
+            this.lblCurrentPlayerText.Size = new System.Drawing.Size(27, 13);
+            this.lblCurrentPlayerText.TabIndex = 27;
+            this.lblCurrentPlayerText.Text = "X/O";
+            // 
+            // lblYouAreText
+            // 
+            this.lblYouAreText.AutoSize = true;
+            this.lblYouAreText.Location = new System.Drawing.Point(101, 12);
+            this.lblYouAreText.Name = "lblYouAreText";
+            this.lblYouAreText.Size = new System.Drawing.Size(27, 13);
+            this.lblYouAreText.TabIndex = 26;
+            this.lblYouAreText.Text = "X/O";
+            // 
+            // lblCurrentPlayer
+            // 
+            this.lblCurrentPlayer.AutoSize = true;
+            this.lblCurrentPlayer.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCurrentPlayer.Location = new System.Drawing.Point(7, 30);
+            this.lblCurrentPlayer.Name = "lblCurrentPlayer";
+            this.lblCurrentPlayer.Size = new System.Drawing.Size(91, 13);
+            this.lblCurrentPlayer.TabIndex = 25;
+            this.lblCurrentPlayer.Text = "Current Player:";
+            // 
+            // lblYouAre
+            // 
+            this.lblYouAre.AutoSize = true;
+            this.lblYouAre.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblYouAre.Location = new System.Drawing.Point(7, 12);
+            this.lblYouAre.Name = "lblYouAre";
+            this.lblYouAre.Size = new System.Drawing.Size(56, 13);
+            this.lblYouAre.TabIndex = 24;
+            this.lblYouAre.Text = "You Are:";
+            // 
+            // btnSquare9
+            // 
+            this.btnSquare9.FlatAppearance.BorderSize = 0;
+            this.btnSquare9.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSquare9.Font = new System.Drawing.Font("Consolas", 40F);
+            this.btnSquare9.Location = new System.Drawing.Point(355, 215);
+            this.btnSquare9.Name = "btnSquare9";
+            this.btnSquare9.Size = new System.Drawing.Size(80, 80);
+            this.btnSquare9.TabIndex = 8;
+            this.btnSquare9.Tag = "9";
+            this.btnSquare9.UseVisualStyleBackColor = true;
+            this.btnSquare9.Click += new System.EventHandler(this.Click_TickTacTowTile);
+            // 
+            // btnSquare3
+            // 
+            this.btnSquare3.Enabled = false;
+            this.btnSquare3.FlatAppearance.BorderSize = 0;
+            this.btnSquare3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSquare3.Font = new System.Drawing.Font("Consolas", 40F);
+            this.btnSquare3.Location = new System.Drawing.Point(355, 11);
+            this.btnSquare3.Name = "btnSquare3";
+            this.btnSquare3.Size = new System.Drawing.Size(80, 80);
+            this.btnSquare3.TabIndex = 2;
+            this.btnSquare3.Tag = "3";
+            this.btnSquare3.UseVisualStyleBackColor = true;
+            this.btnSquare3.Click += new System.EventHandler(this.Click_TickTacTowTile);
+            // 
+            // btnSquare6
+            // 
+            this.btnSquare6.FlatAppearance.BorderSize = 0;
+            this.btnSquare6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSquare6.Font = new System.Drawing.Font("Consolas", 40F);
+            this.btnSquare6.Location = new System.Drawing.Point(355, 113);
+            this.btnSquare6.Name = "btnSquare6";
+            this.btnSquare6.Size = new System.Drawing.Size(80, 80);
+            this.btnSquare6.TabIndex = 5;
+            this.btnSquare6.Tag = "6";
+            this.btnSquare6.UseVisualStyleBackColor = true;
+            this.btnSquare6.Click += new System.EventHandler(this.Click_TickTacTowTile);
+            // 
+            // btnSquare8
+            // 
+            this.btnSquare8.FlatAppearance.BorderSize = 0;
+            this.btnSquare8.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSquare8.Font = new System.Drawing.Font("Consolas", 40F);
+            this.btnSquare8.Location = new System.Drawing.Point(253, 215);
+            this.btnSquare8.Name = "btnSquare8";
+            this.btnSquare8.Size = new System.Drawing.Size(80, 80);
+            this.btnSquare8.TabIndex = 7;
+            this.btnSquare8.Tag = "8";
+            this.btnSquare8.UseVisualStyleBackColor = true;
+            this.btnSquare8.Click += new System.EventHandler(this.Click_TickTacTowTile);
+            // 
+            // pnCrossV2
+            // 
+            this.pnCrossV2.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.pnCrossV2.Location = new System.Drawing.Point(339, 12);
+            this.pnCrossV2.Name = "pnCrossV2";
+            this.pnCrossV2.Size = new System.Drawing.Size(10, 284);
+            this.pnCrossV2.TabIndex = 1;
+            // 
+            // pnCrossV1
+            // 
+            this.pnCrossV1.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.pnCrossV1.Location = new System.Drawing.Point(237, 11);
+            this.pnCrossV1.Name = "pnCrossV1";
+            this.pnCrossV1.Size = new System.Drawing.Size(10, 284);
+            this.pnCrossV1.TabIndex = 0;
+            // 
+            // btnSquare2
+            // 
+            this.btnSquare2.FlatAppearance.BorderSize = 0;
+            this.btnSquare2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSquare2.Font = new System.Drawing.Font("Consolas", 40F);
+            this.btnSquare2.Location = new System.Drawing.Point(253, 11);
+            this.btnSquare2.Name = "btnSquare2";
+            this.btnSquare2.Size = new System.Drawing.Size(80, 80);
+            this.btnSquare2.TabIndex = 1;
+            this.btnSquare2.Tag = "2";
+            this.btnSquare2.UseVisualStyleBackColor = true;
+            this.btnSquare2.Click += new System.EventHandler(this.Click_TickTacTowTile);
+            // 
+            // btnSquare5
+            // 
+            this.btnSquare5.FlatAppearance.BorderSize = 0;
+            this.btnSquare5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSquare5.Font = new System.Drawing.Font("Consolas", 40F);
+            this.btnSquare5.Location = new System.Drawing.Point(253, 113);
+            this.btnSquare5.Name = "btnSquare5";
+            this.btnSquare5.Size = new System.Drawing.Size(80, 80);
+            this.btnSquare5.TabIndex = 4;
+            this.btnSquare5.Tag = "5";
+            this.btnSquare5.UseVisualStyleBackColor = true;
+            this.btnSquare5.Click += new System.EventHandler(this.Click_TickTacTowTile);
+            // 
+            // btnSquare7
+            // 
+            this.btnSquare7.FlatAppearance.BorderSize = 0;
+            this.btnSquare7.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSquare7.Font = new System.Drawing.Font("Consolas", 40F);
+            this.btnSquare7.Location = new System.Drawing.Point(151, 215);
+            this.btnSquare7.Name = "btnSquare7";
+            this.btnSquare7.Size = new System.Drawing.Size(80, 80);
+            this.btnSquare7.TabIndex = 6;
+            this.btnSquare7.Tag = "7";
+            this.btnSquare7.UseVisualStyleBackColor = true;
+            this.btnSquare7.Click += new System.EventHandler(this.Click_TickTacTowTile);
+            // 
+            // pnCrossH2
+            // 
+            this.pnCrossH2.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.pnCrossH2.Location = new System.Drawing.Point(151, 199);
+            this.pnCrossH2.Name = "pnCrossH2";
+            this.pnCrossH2.Size = new System.Drawing.Size(284, 10);
+            this.pnCrossH2.TabIndex = 2;
+            // 
+            // btnSquare4
+            // 
+            this.btnSquare4.FlatAppearance.BorderSize = 0;
+            this.btnSquare4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSquare4.Font = new System.Drawing.Font("Consolas", 40F);
+            this.btnSquare4.Location = new System.Drawing.Point(151, 113);
+            this.btnSquare4.Name = "btnSquare4";
+            this.btnSquare4.Size = new System.Drawing.Size(80, 80);
+            this.btnSquare4.TabIndex = 3;
+            this.btnSquare4.Tag = "4";
+            this.btnSquare4.UseVisualStyleBackColor = true;
+            this.btnSquare4.Click += new System.EventHandler(this.Click_TickTacTowTile);
+            // 
+            // pnCrossH1
+            // 
+            this.pnCrossH1.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.pnCrossH1.Location = new System.Drawing.Point(151, 97);
+            this.pnCrossH1.Name = "pnCrossH1";
+            this.pnCrossH1.Size = new System.Drawing.Size(284, 10);
+            this.pnCrossH1.TabIndex = 1;
+            // 
+            // btnSquare1
+            // 
+            this.btnSquare1.FlatAppearance.BorderSize = 0;
+            this.btnSquare1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSquare1.Font = new System.Drawing.Font("Consolas", 40F);
+            this.btnSquare1.Location = new System.Drawing.Point(151, 11);
+            this.btnSquare1.Name = "btnSquare1";
+            this.btnSquare1.Size = new System.Drawing.Size(80, 80);
+            this.btnSquare1.TabIndex = 0;
+            this.btnSquare1.Tag = "1";
+            this.btnSquare1.UseVisualStyleBackColor = true;
+            this.btnSquare1.Click += new System.EventHandler(this.Click_TickTacTowTile);
+            // 
             // MainMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1031,11 +1104,10 @@
             this.MaximumSize = new System.Drawing.Size(613, 365);
             this.MinimumSize = new System.Drawing.Size(613, 365);
             this.Name = "MainMenu";
-            this.Text = "Dots & Boxes";
+            this.Text = "Tic Tac Toe";
             this.tcMainMenu.ResumeLayout(false);
             this.tbSelectServer.ResumeLayout(false);
             this.tbSelectServer.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tbLogin.ResumeLayout(false);
             this.tbLogin.PerformLayout();
             this.pnCreateAccount.ResumeLayout(false);
@@ -1051,6 +1123,8 @@
             this.tbAccountSettings.PerformLayout();
             this.tbCreateGame.ResumeLayout(false);
             this.tbCreateGame.PerformLayout();
+            this.tbGameField.ResumeLayout(false);
+            this.tbGameField.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1087,7 +1161,6 @@
         private System.Windows.Forms.Button btnJoinGame;
         private System.Windows.Forms.Label lblGamesListKey;
         private System.Windows.Forms.Label lblGameListPlayers;
-        private System.Windows.Forms.Label lblGamesListBoardSize;
         private System.Windows.Forms.Label lblGamesListName;
         private System.Windows.Forms.Label lblGamesList;
         private System.Windows.Forms.ListBox lbGameList;
@@ -1107,21 +1180,11 @@
         private System.Windows.Forms.Label lblDeleteUsername;
         private System.Windows.Forms.Label lblDeletePasswordError;
         private System.Windows.Forms.TabPage tbCreateGame;
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label lblPublicGameName;
         private System.Windows.Forms.Label lblCreateGame;
-        private System.Windows.Forms.TextBox txtGamePassword;
-        private System.Windows.Forms.Label lblGamePassword;
-        private System.Windows.Forms.RadioButton rbNoPasswordProtect;
-        private System.Windows.Forms.RadioButton rbPasswordProtect;
-        private System.Windows.Forms.Label lblPaswordProtect;
-        private System.Windows.Forms.ComboBox cbGridSize;
-        private System.Windows.Forms.Label lblGridSize;
         private System.Windows.Forms.Label lblCreateGameError;
         private System.Windows.Forms.Button btnReturnToList1;
         private System.Windows.Forms.Button btnCreateDotsGame;
-        private System.Windows.Forms.ComboBox cbGameUsers;
-        private System.Windows.Forms.Label lblNumberOfUsers;
         private System.Windows.Forms.TextBox txtGameName;
         private System.Windows.Forms.Label lblGameLobby;
         private System.Windows.Forms.Timer timRefreshLobby;
@@ -1130,19 +1193,35 @@
         private System.Windows.Forms.Label lblGameInfo;
         private System.Windows.Forms.ListBox lbPlayers;
         private System.Windows.Forms.Label lblVotesToStartText;
-        private System.Windows.Forms.Label lblGameStatusText;
-        private System.Windows.Forms.Label lblBoardSizeText;
         private System.Windows.Forms.Label lblNumberPlayersText;
         private System.Windows.Forms.Label lblLobbyNameText;
         private System.Windows.Forms.Label lblVotesToStart;
-        private System.Windows.Forms.Label lblGameStatus;
-        private System.Windows.Forms.Label lblBoardSize;
         private System.Windows.Forms.Label lblNumberPlayers;
         private System.Windows.Forms.Label lblLobbyName;
         private System.Windows.Forms.Button btnVoteStart;
-        private System.Windows.Forms.Label lblInGameWaiting;
         private System.Windows.Forms.Label lblVotesRequiredText;
         private System.Windows.Forms.Label lblVotesRequired;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TabPage tbGameField;
+        private System.Windows.Forms.Button btnSquare9;
+        private System.Windows.Forms.Button btnSquare3;
+        private System.Windows.Forms.Button btnSquare6;
+        private System.Windows.Forms.Button btnSquare8;
+        private System.Windows.Forms.Panel pnCrossV2;
+        private System.Windows.Forms.Panel pnCrossV1;
+        private System.Windows.Forms.Button btnSquare2;
+        private System.Windows.Forms.Button btnSquare5;
+        private System.Windows.Forms.Button btnSquare7;
+        private System.Windows.Forms.Panel pnCrossH2;
+        private System.Windows.Forms.Button btnSquare4;
+        private System.Windows.Forms.Panel pnCrossH1;
+        private System.Windows.Forms.Button btnSquare1;
+        private System.Windows.Forms.Timer timGameRefresh;
+        private System.Windows.Forms.Label lblCurrentPlayerText;
+        private System.Windows.Forms.Label lblYouAreText;
+        private System.Windows.Forms.Label lblCurrentPlayer;
+        private System.Windows.Forms.Label lblYouAre;
+        private System.Windows.Forms.Label lblYourTurn;
 
     }
 }

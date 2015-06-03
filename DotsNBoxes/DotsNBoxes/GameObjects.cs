@@ -12,6 +12,11 @@ namespace DotsNBoxes
     class ServerGame
     {
         /// <summary>
+        /// The max number of players that can be in a server game
+        /// </summary>
+        public const int MAX_PLAYERS = 2;
+
+        /// <summary>
         /// The ID of the game on the server
         /// </summary>
         public int ID { get; set; }
@@ -20,16 +25,6 @@ namespace DotsNBoxes
         /// The name of the game
         /// </summary>
         public string Name { get; set; }
-
-        /// <summary>
-        /// The size of the DnB map to play on
-        /// </summary>
-        public GridSize MapSize { get; set; }
-
-        /// <summary>
-        /// The maximum number of players that can join this game
-        /// </summary>
-        public int MaxPlayers { get; set; }
 
         /// <summary>
         /// Whether or not the game is full

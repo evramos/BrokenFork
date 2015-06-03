@@ -83,11 +83,6 @@ namespace DotsNBoxesServer
                 return;
             }
 
-            //Create some default games on the server
-            Games.Add(new GameData(NextGameID++, "Default", 4, GridSize.FourByFour, null));
-            Games.Add(new GameData(NextGameID++, "Default", 4, GridSize.SixBySix, null));
-            Games.Add(new GameData(NextGameID++, "Default", 4, GridSize.EightByEight, null));
-
             //Start listening for connections
             while(true)
             {
@@ -357,8 +352,7 @@ namespace DotsNBoxesServer
                     foreach(GameData currentGame in Games)
                     {
                         currentResponse += currentGame.GameID.ToString() + "," + currentGame.GameName + "," +
-                            currentGame.GameSize.ToString() + "," + currentGame.NumberOfPlayers.ToString() + "," +
-                            currentGame.MaxPlayers.ToString() + "," + currentGame.PasswordProtected.ToString() + "\r\n";
+                            currentGame.NumberOfPlayers.ToString() + "," + currentGame.PasswordProtected.ToString() + "\r\n";
                     }
                     currentResponse += "\r\n\r\n";
                 }
@@ -370,42 +364,14 @@ namespace DotsNBoxesServer
                     string[] requestLines = request.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
 
                     //If all of the required parameter are in the request create a new game with them
-                    if(requestLines.Length >= 4)
+                    if(requestLines.Length >= 2)
                     {
                         //Parse out the name of the game
                         string gameName = requestLines[1];
 
-                        //Attempt to parse out the max players in the game
-                        int maxPlayers = 0;
-                        if(!int.TryParse(requestLines[2], out maxPlayers) || maxPlayers < 2 || maxPlayers > 4)
-                        {
-                            currentResponse += "INVALID MAX\r\n\r\n";
-                            return currentResponse;
-                        }
-
-                        //Attempt to parse board size
-                        GridSize gameSize;
-                        if(requestLines[3] == "4X4")
-                        {
-                            gameSize = GridSize.FourByFour;
-                        }
-                        else if (requestLines[3] == "6X6")
-                        {
-                            gameSize = GridSize.SixBySix;
-                        }
-                        else if (requestLines[3] == "8X8")
-                        {
-                            gameSize = GridSize.EightByEight;
-                        }
-                        else
-                        {
-                            currentResponse += "INVALID GAMESIZE\r\n\r\n";
-                            return currentResponse;
-                        }
-
                         //If a password parameter was included, decrypt the provided password
                         string password = null;
-                        if(requestLines.Length > 4)
+                        if(requestLines.Length > 3)
                         {
                             byte[] encryptedPassword = Convert.FromBase64String(requestLines[4]);
                             byte[] decryptedPassword = clientInfo.RSA.Decrypt(encryptedPassword, false);
@@ -413,7 +379,7 @@ namespace DotsNBoxesServer
                         }
 
                         //Create a new game with the parameters provided by the client
-                        GameData newGame = new GameData(NextGameID++, gameName, maxPlayers, gameSize, password);
+                        GameData newGame = new GameData(NextGameID++, gameName, password);
 
                         //Add the client to the game we just created
                         newGame.AddPlayer(clientInfo, password);
@@ -466,7 +432,7 @@ namespace DotsNBoxesServer
                     }
 
                     //If the requested game has too many players in it, return game full
-                    if(requestedGame.NumberOfPlayers >= requestedGame.MaxPlayers)
+                    if (requestedGame.NumberOfPlayers >= GameData.MAX_PLAYERS)
                     {
                         currentResponse += "GAME FULL\r\n\r\n";
                         return currentResponse;

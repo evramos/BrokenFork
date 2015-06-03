@@ -14,6 +14,11 @@ namespace DotsNBoxesServer
         private const int REQUIRED_START_VOTES = 2;
 
         /// <summary>
+        /// The max players allowed in the game
+        /// </summary>
+        public const int MAX_PLAYERS = 2;
+
+        /// <summary>
         /// The ID of the game
         /// </summary>
         public readonly int GameID;
@@ -22,16 +27,6 @@ namespace DotsNBoxesServer
         /// The publicly displayed name of this game
         /// </summary>
         public readonly string GameName;
-
-        /// <summary>
-        /// The max number of players that can join the game
-        /// </summary>
-        public readonly int MaxPlayers;
-
-        /// <summary>
-        /// The size of the game grid
-        /// </summary>
-        public readonly GridSize GameSize;
 
         /// <summary>
         /// Whether or not the game is password protected
@@ -49,14 +44,24 @@ namespace DotsNBoxesServer
         private bool GameInProgress = false;
 
         /// <summary>
-        /// All of the players that are actively playing in the game
+        /// All of the players currently in the game
         /// </summary>
-        private List<ClientData> ActivePlayers = new List<ClientData>();
+        private List<ClientData> Players = new List<ClientData>();
 
         /// <summary>
-        /// All of the players that are currently in the lobby waiting for the game to start
+        /// The player that is currently playing X
         /// </summary>
-        private List<ClientData> LobbyPlayers = new List<ClientData>();
+        private ClientData PlayerX;
+
+        /// <summary>
+        /// Whether or not it is currently X's turn
+        /// </summary>
+        private bool XsTurn;
+
+        /// <summary>
+        /// The play space of the current game
+        /// </summary>
+        private TicTacToeBoard GameBoard;
 
         /// <summary>
         /// The number of votes to start the game
@@ -70,7 +75,7 @@ namespace DotsNBoxesServer
         {
             get
             {
-                return ActivePlayers.Count() + LobbyPlayers.Count();
+                return Players.Count();
             }
         }
 
@@ -82,12 +87,10 @@ namespace DotsNBoxesServer
         /// <param name="maxPlayers">The maximum players allowed to join the game</param>
         /// <param name="gridSize">The size of the grid to play the game on</param>
         /// <param name="password">The password to protect the game with</param>
-        public GameData(int ID, string name, int maxPlayers, GridSize gridSize, string password)
+        public GameData(int ID, string name, string password)
         {
             GameID = ID;
             GameName = name;
-            MaxPlayers = maxPlayers;
-            GameSize = gridSize;
             PasswordProtected = (password != null);
             GamePassword = password;
         }
@@ -108,23 +111,16 @@ namespace DotsNBoxesServer
 
             //Queue a message to all players stating a new player has joined
             string clientAdded = "PLAYER ADDED\r\n" + playerToAdd.Username + "\r\n\r\n";
-            QueueMessage(clientAdded, true);
+            QueueMessage(clientAdded);
 
             //Add the given player to the current game
-            LobbyPlayers.Add(playerToAdd);
+            Players.Add(playerToAdd);
             playerToAdd.CurrentGame = this;
             playerToAdd.IsInGame = true;
 
-            //Queue a message to the client to let them know if the game is in progress
-            if(GameInProgress)
+            //Give the new player the current count of game votes
+            if(!GameInProgress)
             {
-                playerToAdd.GameQueue.Enqueue("GAME PLAYING\r\n\r\n");
-            }
-            else
-            {
-                playerToAdd.GameQueue.Enqueue("GAME WAITING\r\n\r\n");
-
-                //Also send the player the current number of start votes
                 for(int i = 0; i < StartVotes; i++)
                 {
                     playerToAdd.GameQueue.Enqueue("START VOTE\r\n\r\n");
@@ -133,11 +129,7 @@ namespace DotsNBoxesServer
 
             //Queue a message to the client will a list of all the players currently in the game
             string playerList = "PLAYER LIST\r\n\r\n";
-            foreach(ClientData currentPlayer in ActivePlayers)
-            {
-                playerList += "true," + currentPlayer.Username + "\r\n";
-            }
-            foreach(ClientData currentPlayer in LobbyPlayers)
+            foreach(ClientData currentPlayer in Players)
             {
                 playerList += "false," + currentPlayer.Username + "\r\n";
             }
@@ -154,24 +146,20 @@ namespace DotsNBoxesServer
         /// <param name="playerToRemove">The information of the player to remove</param>
         public void RemovePlayer(ClientData playerToRemove)
         {
+            //Reset the number of game votes
+            StartVotes = 0;
+
             //Remove the clients access to the game
             playerToRemove.IsInGame = false;
             playerToRemove.CurrentGame = null;
             playerToRemove.GameQueue.Clear();
 
             //Remove the client from the game
-            if(GameInProgress && ActivePlayers.Contains(playerToRemove))
-            {
-                ActivePlayers.Remove(playerToRemove);
-            }
-            else
-            {
-                LobbyPlayers.Remove(playerToRemove);
-            }
+            Players.Remove(playerToRemove);
 
             //Tell the other clients the player left the game
             string clientRemoved = "PLAYER LEAVE\r\n" + playerToRemove.Username + "\r\n\r\n";
-            QueueMessage(clientRemoved, true);
+            QueueMessage(clientRemoved);
         }
 
         /// <summary>
@@ -179,41 +167,41 @@ namespace DotsNBoxesServer
         /// </summary>
         private void StartGame()
         {
-            //Move all of the players in the lobby to the active players list
-            int playerCount = LobbyPlayers.Count;
-            for (int curPlayer = 0; curPlayer < playerCount; curPlayer++)
-            {
-                ActivePlayers.Add(LobbyPlayers[0]);
-                LobbyPlayers.RemoveAt(0);
-            }
-
             //Set the game in progress flag to true
             GameInProgress = true;
 
+            //Create a new game board
+            GameBoard = new TicTacToeBoard();
+
             //Send out the start game signal
-            QueueMessage("GAME START\r\n\r\n", false);
+            QueueMessage("GAME START\r\n\r\n");
+
+            //Select a player to play X and send out who it is
+            Random rng = new Random();
+            if(rng.Next() % 2 == 0)
+            {
+                PlayerX = Players[0];
+            }
+            else
+            {
+                PlayerX = Players[1];
+            }
+            QueueMessage("PLAYERX\r\n" + PlayerX.Username + "\r\n\r\n");
+
+            //Set the current turn to X
+            XsTurn = true;
         }
 
         /// <summary>
         /// Queues a message to players in the current game
         /// </summary>
         /// <param name="message">The message to send to all players</param>
-        /// <param name="allPlayers">Whether or not this massage should include players in the lobby</param>
-        public void QueueMessage(string message, bool allPlayers)
+        public void QueueMessage(string message)
         {
-            //Queue the massage for all the players that are actively in game
-            foreach(ClientData currentPlayer in ActivePlayers)
+            //Queue the massage for all the players that are in the game
+            foreach(ClientData currentPlayer in Players)
             {
                 currentPlayer.GameQueue.Enqueue(message);
-            }
-
-            //If requested, also queue the message for all the players in the lobby
-            if(allPlayers)
-            {
-                foreach(ClientData currentPlayer in LobbyPlayers)
-                {
-                    currentPlayer.GameQueue.Enqueue(message);
-                }
             }
         }
 
@@ -238,21 +226,18 @@ namespace DotsNBoxesServer
                 }
             }
 
-            else if (plainRequest == "GAME VOTE")
+            else if (plainRequest == "GAME VOTE" && !GameInProgress)
             {
-                if (!GameInProgress)
+                StartVotes++;
+                QueueMessage("GAME VOTE\r\n\r\n");
+
+                //If there have been enough start votes, start the game
+                if (StartVotes >= REQUIRED_START_VOTES)
                 {
-                    StartVotes++;
-                    QueueMessage("GAME VOTE\r\n\r\n", true);
-
-                    //If there have been enough start votes, start the game
-                    if (StartVotes >= REQUIRED_START_VOTES)
-                    {
-                        StartGame();
-                    }
-
-                    return "SUCCESS\r\n\r\n";
+                    StartGame();
                 }
+
+                return "SUCCESS\r\n\r\n";
             }
 
             //If the current request is to exit from the game, remove the current client from the game
@@ -262,18 +247,171 @@ namespace DotsNBoxesServer
                 return "SUCCESS\r\n\r\n";
             }
 
+            //If the current request is to attempt a game move
+            else if (plainRequest.StartsWith("GAME MOVE") && GameInProgress)
+            {
+                if((XsTurn && (clientInfo == PlayerX)) && (!XsTurn && (clientInfo != PlayerX)))
+                {
+                    //Parse out the tile to move on
+                    int tileToAttempt = int.Parse(request.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+
+                    //Parse out the status of the move on the given tic tac toe tile
+                    TicTacToeMoveState moveStatus = GameBoard.AttemptMove(tileToAttempt, XsTurn);
+
+                    //Return the appropriate value and queue the appropriate message
+                    if(moveStatus == TicTacToeMoveState.Valid)
+                    {
+                        QueueMessage("MOVE " + tileToAttempt.ToString() + "\r\n\r\n");
+                        return "SUCCESS\r\n\r\n";
+                    }
+                    else if (moveStatus == TicTacToeMoveState.Win)
+                    {
+                        QueueMessage("GAME FINISH\r\n" + ((clientInfo == PlayerX) ? "X" : "O") + "\r\n\r\n");
+                        return "SUCCESS\r\n\r\n";
+                    }
+                    else if (moveStatus == TicTacToeMoveState.Cats)
+                    {
+                        QueueMessage("GAME FINISH\r\nCATZ\r\n\r\n");
+                        return "SUCCESS\r\n\r\n";
+                    }
+                }
+            }
+
             //If the client request was otherwise unhandled, return bad request
             return "BAD REQUEST\r\n\r\n";
         }
     }
 
     /// <summary>
-    /// An enumeration of the allowable grid sizes
+    /// A single tick tac tow board
     /// </summary>
-    enum GridSize
+    class TicTacToeBoard
     {
-        FourByFour,
-        SixBySix,
-        EightByEight
+        private const int BOARD_LENGTH = 3;
+
+        /// <summary>
+        /// The ticktack tow board
+        /// </summary>
+        private TicTacToeTileState[,] BoardContents;
+
+        public TicTacToeBoard()
+        {
+            //Create a new tic tac tow board
+            BoardContents = new TicTacToeTileState[BOARD_LENGTH, BOARD_LENGTH];
+
+            //Clear the board
+            for (int curCol = 0; curCol < BOARD_LENGTH; curCol++)
+            {
+                for (int curRow = 0; curRow < BOARD_LENGTH; curRow++)
+                {
+                    BoardContents[curCol, curRow] = TicTacToeTileState.None;
+                }
+            }
+        }
+
+        public TicTacToeMoveState AttemptMove(int tileIndex, bool X)
+        {
+            //Get the position of the current move
+            int curCol = (tileIndex - 1) / BOARD_LENGTH;
+            int curRow = (tileIndex - 1) % BOARD_LENGTH;
+
+            //If the title at the current position is full return AlreadyFilled
+            if(BoardContents[curCol, curRow] != TicTacToeTileState.None)
+            {
+                return TicTacToeMoveState.AlreadyFilled;
+            }
+
+            //Place the requested X or O on the requested tile
+            if(X)
+            {
+                BoardContents[curCol, curRow] = TicTacToeTileState.X;
+            }
+            else
+            {
+                BoardContents[curCol, curRow] = TicTacToeTileState.O;
+            }
+
+            //If there is a win condition return win
+            if(CheckWin())
+            {
+                return TicTacToeMoveState.Win;
+            }
+
+            //Check for a catz game
+            bool emptyExists = false;
+            for (curCol = 0; curCol < BOARD_LENGTH; curCol++)
+            {
+                for (curRow = 0; curRow < BOARD_LENGTH; curRow++)
+                {
+                    if(BoardContents[curCol, curRow] == TicTacToeTileState.None)
+                    {
+                        emptyExists = true;
+                        break;
+                    }
+                }
+                if(emptyExists)
+                {
+                    break;
+                }
+            }
+
+            //Otherwise just return valid move
+            return TicTacToeMoveState.Valid;
+        }
+
+        //Check to see if the board is in a win state
+        private bool CheckWin()
+        {
+            //Check for vertical win
+            for(int curCol = 0; curCol < BOARD_LENGTH; curCol++)
+            {
+                //Detect vertical win for the current row
+                bool verticalWin = (BoardContents[curCol, 0] != TicTacToeTileState.None) && 
+                    (BoardContents[curCol, 0] == BoardContents[curCol, 1]) && 
+                    (BoardContents[curCol, 1] == BoardContents[curCol, 2]);
+
+                //If there is a vertical win, return true
+                if(verticalWin){ return true; }
+            }
+
+            //Check for horizontal win
+            for (int curRow = 0; curRow < BOARD_LENGTH; curRow++)
+            {
+                //Detect horizontal win for the current row
+                bool horizontalWin = (BoardContents[0, curRow] != TicTacToeTileState.None) &&
+                    (BoardContents[0, curRow] == BoardContents[1, curRow]) &&
+                    (BoardContents[1, curRow] == BoardContents[2, curRow]);
+
+                //If there is a horizontal win, return true
+                if (horizontalWin) { return true; }
+            }
+
+
+            //Check for diagonal win
+            bool diagonalWin = ((BoardContents[0, 0] != TicTacToeTileState.None) &&
+                (BoardContents[0, 0] == BoardContents[1, 1]) &&
+                (BoardContents[1, 1] == BoardContents[2, 2])) ||
+                ((BoardContents[0, 2] != TicTacToeTileState.None) &&
+                (BoardContents[0, 2] == BoardContents[1, 1]) &&
+                (BoardContents[1, 1] == BoardContents[0, 2]));
+
+            //Return whether or not a win condition was ultimately found
+            return diagonalWin;
+        }
+    }
+
+    enum TicTacToeTileState
+    {
+        None,
+        X,
+        O
+    }
+
+    enum TicTacToeMoveState
+    {
+        Valid,
+        AlreadyFilled,
+        Win,
+        Cats
     }
 }

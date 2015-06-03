@@ -30,17 +30,37 @@ namespace DotsNBoxes
         /// <summary>
         /// The index of the account settings tab
         /// </summary>
-        private const int ACCOUNT_SETTINGS_TAB = 4;
+        private const int ACCOUNT_SETTINGS_TAB_INDEX = 4;
 
         /// <summary>
         /// The index of the create game tab
         /// </summary>
-        private const int CREATE_GAME_TAB = 5;
+        private const int CREATE_GAME_TAB_INDEX = 5;
+
+        /// <summary>
+        /// The index of the game field tab
+        /// </summary>
+        private const int GAME_FEILD_TAB = 6;
 
         /// <summary>
         /// The name of the current user
         /// </summary>
         private string Username = "";
+
+        /// <summary>
+        /// Whether or not the client is X in the current game
+        /// </summary>
+        private bool IAmX = false;
+
+        /// <summary>
+        /// Whether or not it is currently X's turn
+        /// </summary>
+        private bool XsTurn = false;
+
+        /// <summary>
+        /// Whether or not the next move request should be ignored
+        /// </summary>
+        private bool IgnoreMove = false;
 
         /// <summary>
         /// The game the user is currently in
@@ -191,7 +211,7 @@ namespace DotsNBoxes
             //Navigate the user to the account settings page
             timRefreshGameList.Enabled = false;
             txtDeleteUsername.Text = Username;
-            tcMainMenu.SelectedIndex = ACCOUNT_SETTINGS_TAB;
+            tcMainMenu.SelectedIndex = ACCOUNT_SETTINGS_TAB_INDEX;
         }
 
         private void btnDeleteAccount_Click(object sender, EventArgs e)
@@ -273,7 +293,7 @@ namespace DotsNBoxes
         {
             //Navigate the user to the create game tab
             timRefreshGameList.Enabled = false;
-            tcMainMenu.SelectedIndex = CREATE_GAME_TAB;
+            tcMainMenu.SelectedIndex = CREATE_GAME_TAB_INDEX;
         }
 
         private void btnJoinGame_Click(object sender, EventArgs e)
@@ -307,11 +327,6 @@ namespace DotsNBoxes
             }
         }
 
-        private void rbPasswordProtect_CheckedChanged(object sender, EventArgs e)
-        {
-            txtGamePassword.Enabled = rbPasswordProtect.Checked;
-        }  
-
         private void btnCreateDotsGame_Click(object sender, EventArgs e)
         {
             //If the games name is invalid warn the user
@@ -322,17 +337,8 @@ namespace DotsNBoxes
                 return;
             }
 
-            //If the user did not select the max number of users or grid size, force them to
-            if(cbGameUsers.SelectedIndex == -1 || cbGridSize.SelectedIndex == -1)
-            {
-                lblCreateGameError.Text = "* Max users and grid size required";
-                lblCreateGameError.Visible = true;
-                return;
-            }
-
             //Create a game for the user
-            bool gameCreated = GameServer.CreateGame(txtGameName.Text, cbGameUsers.Text, cbGridSize.Text, 
-                rbPasswordProtect.Checked, txtGamePassword.Text);
+            bool gameCreated = GameServer.CreateGame(txtGameName.Text, false, "");
 
             //If the game was not created, warn the user
             if(!gameCreated)
@@ -343,25 +349,16 @@ namespace DotsNBoxes
             }
 
             //Create a game object to make the lobby loadable
-            GridSize selectedGridSize = GridSize.FourByFour;
-            if(cbGridSize.SelectedIndex == 1) { selectedGridSize = GridSize.SixBySix; }
-            else if(cbGridSize.SelectedIndex == 2) { selectedGridSize = GridSize.EightByEight; }
             CurrentGame = new ServerGame()
             {
                 ID = -1, /* ID is only needed to join games.. the user is already in this game */
                 Name = txtGameName.Text,
-                MapSize = selectedGridSize,
-                MaxPlayers = int.Parse(cbGameUsers.Text),
                 IsFull = false,
-                PassProtected = rbNoPasswordProtect.Checked
+                PassProtected = false
             };
 
             //Clear all of the create game controls for the next time the user sees the form
             txtGameName.Text = "";
-            cbGameUsers.SelectedIndex = -1;
-            cbGridSize.SelectedIndex = -1;
-            rbNoPasswordProtect.Checked = true;
-            txtGamePassword.Text = "";
 
             //Navigate the user to the lobby
             LoadLobby();
@@ -388,6 +385,7 @@ namespace DotsNBoxes
             if(exitStatus)
             {
                 timRefreshLobby.Enabled = false;
+                timGameRefresh.Enabled = false;
                 CurrentGame = null;
                 LoadGameList();
             }
@@ -431,7 +429,7 @@ namespace DotsNBoxes
                         //If the new player's username is not the users username, add the user to the display list
                         if(newPlayer.Username.ToLower() != Username.ToLower())
                         {
-                            lbPlayers.Items.Add((newPlayer.InGame ? "(I) " : "(W) ") + newPlayer.Username);
+                            lbPlayers.Items.Add(newPlayer.Username);
                         }
                     }
 
@@ -451,7 +449,7 @@ namespace DotsNBoxes
                     CurrentGame.Players.Add(newPlayerEntry);
 
                     //Add the player to the visible list of players
-                    lbPlayers.Items.Add("(W) " + newPlayerName);
+                    lbPlayers.Items.Add(newPlayerName);
                 }
                 else if (responseHeader == "PLAYER LEAVE")
                 {
@@ -461,17 +459,13 @@ namespace DotsNBoxes
                     CurrentGame.Players.Remove(CurrentGame.Players.First((curPlayer) => curPlayer.Username == playerLeft));
                     lbPlayers.Items.Remove(playerLeft);
 
+                    //Update the number of players displayed
                     lblNumberPlayersText.Text = CurrentGame.Players.Count.ToString();
-                }
-                else if (responseHeader == "GAME PLAYING")
-                {
-                    CurrentGame.Status = GameStatus.InGame;
-                    lblGameStatusText.Text = "Game in progress";
-                }
-                else if (responseHeader == "GAME WAITING")
-                {
-                    CurrentGame.Status = GameStatus.Waiting;
-                    lblGameStatusText.Text = "Waiting to start";
+
+                    //Reset the number of game votes
+                    CurrentGame.StartVotes = 0;
+                    btnVoteStart.Enabled = true;
+                    lblVotesToStartText.Text = CurrentGame.StartVotes.ToString();
                 }
                 else if (responseHeader == "GAME VOTE")
                 {
@@ -481,18 +475,115 @@ namespace DotsNBoxes
                 else if (responseHeader == "GAME START")
                 {
                     timRefreshGameList.Enabled = false;
-                    this.Visible = false;
-                    GameDisplay gameVisual = new GameDisplay();
-                    gameVisual.ShowDialog();
-                    this.Visible = true;
-                    timRefreshGameList.Enabled = true;
+                    LoadGameDisplay();
                     break;
                 }
-
 
                 //Ping the server again
                 response = GameServer.GamePing();
             }
+        }
+
+        private void timGameRefresh_Tick(object sender, EventArgs e)
+        {
+            //Keep pinging the server till it has nothing new to tell us
+            string response = GameServer.GamePing();
+            while (response != "PONG\r\n\r\n")
+            {
+                string responseHeader = response.Substring(0, response.IndexOf("\r\n"));
+                if (responseHeader == "PLAYERX")
+                {
+                    //Figure out if the client is X or O
+                    string xsName = response.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)[1];
+                    IAmX = xsName.ToLower() == Username.ToLower();
+                    XsTurn = true;
+
+                    //Setup the field appropriately for the X/O status
+                    lblYouAreText.Text = (IAmX ? "X" : "O");
+                    lblCurrentPlayerText.Text = "X";
+                    lblYourTurn.Visible = IAmX;
+                    IgnoreMove = false;
+
+                    //Correct the enabled state of the client buttons
+                    CorrectTileStates();
+                }
+                else if (responseHeader.StartsWith("MOVE"))
+                {
+                    if(IgnoreMove)
+                    {
+                        IgnoreMove = false;
+                        continue;
+                    }
+
+                    //Update the game display
+                    int opponentPlacment = int.Parse(responseHeader.Split(' ')[1]);
+                    switch(opponentPlacment)
+                    {
+                        case 1: btnSquare1.Text = (IAmX ? "O" : "X"); break;
+                        case 2: btnSquare2.Text = (IAmX ? "O" : "X"); break;
+                        case 3: btnSquare3.Text = (IAmX ? "O" : "X"); break;
+                        case 4: btnSquare4.Text = (IAmX ? "O" : "X"); break;
+                        case 5: btnSquare5.Text = (IAmX ? "O" : "X"); break;
+                        case 6: btnSquare6.Text = (IAmX ? "O" : "X"); break;
+                        case 7: btnSquare7.Text = (IAmX ? "O" : "X"); break;
+                        case 8: btnSquare8.Text = (IAmX ? "O" : "X"); break;
+                        case 9: btnSquare9.Text = (IAmX ? "O" : "X"); break;
+                    }
+
+                    //Update the labels
+                    XsTurn = IAmX;
+                    lblCurrentPlayerText.Text = (IAmX ? "X" : "O");
+                    lblYourTurn.Visible = true;
+
+                    //Correct the enabled state of the client buttons
+                    CorrectTileStates();
+                }
+                else if (responseHeader == "PLAYER LEAVE")
+                {
+                    string playerLeft = response.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)[1];
+
+                    //Remove the player from the master list and the visible list
+                    CurrentGame.Players.Remove(CurrentGame.Players.First((curPlayer) => curPlayer.Username == playerLeft));
+                    lbPlayers.Items.Remove(playerLeft);
+
+                    //Update the number of players displayed
+                    lblNumberPlayersText.Text = CurrentGame.Players.Count.ToString();
+
+                    //Reset the number of game votes
+                    CurrentGame.StartVotes = 0;
+                    btnVoteStart.Enabled = true;
+                    lblVotesToStartText.Text = CurrentGame.StartVotes.ToString();
+
+                    //Move back to the lovely lobby
+                    timGameRefresh.Enabled = false;
+                    LoadLobby();
+                    break;
+                }
+
+                //Ping the server again
+                response = GameServer.GamePing();
+            }
+        }
+
+        private void Click_TickTacTowTile(object sender, EventArgs e)
+        {
+            //Tell the server to move on the tile we just clicked
+            IgnoreMove = true;
+            GameServer.GameMove((string)(((Button)sender).Tag));
+
+            //Locally mark the tile we just clicked with our symbol
+            Button clickedTile = (Button)sender;
+            clickedTile.Text = (IAmX ? "X" : "O");
+
+            //Change to the other players turn
+            XsTurn = !IAmX;
+
+            //Update the labels on the screen
+            lblCurrentPlayerText.Text = (IAmX ? "O" : "X");
+            lblYourTurn.Visible = false;
+
+            //Correct the enable state of the clients buttons
+            CorrectTileStates();
         }
 
         /// <summary>
@@ -525,9 +616,6 @@ namespace DotsNBoxes
             btnVoteStart.Enabled = true;
             lblVotesToStartText.Text = "0";
             lblLobbyNameText.Text = CurrentGame.Name;
-            if (CurrentGame.MapSize == GridSize.FourByFour) { lblBoardSizeText.Text = "4X4"; }
-            else if (CurrentGame.MapSize == GridSize.SixBySix) { lblBoardSizeText.Text = "6X6"; }
-            else { lblBoardSizeText.Text = "8X8"; }
 
             //Kick off the lobby refresh
             timRefreshLobby_Tick(this, null);
@@ -535,6 +623,43 @@ namespace DotsNBoxes
 
             //Navigate to the lobby tab
             tcMainMenu.SelectedIndex = LOBBY_TAB_INDEX;
+        }
+
+        private void LoadGameDisplay()
+        {
+            //Clear the board buttons
+            btnSquare1.Text = btnSquare2.Text = btnSquare3.Text = btnSquare4.Text = btnSquare5.Text = 
+                btnSquare6.Text = btnSquare7.Text = btnSquare8.Text = btnSquare9.Text = "";
+            btnSquare1.Enabled = btnSquare2.Enabled = btnSquare3.Enabled = btnSquare4.Enabled = btnSquare5.Enabled =
+                btnSquare6.Enabled = btnSquare7.Enabled = btnSquare8.Enabled = btnSquare9.Enabled = true;
+
+            //Kick off the game refresh
+            timGameRefresh_Tick(this, null);
+            timGameRefresh.Enabled = true;
+
+            //Navigate to the game display
+            tcMainMenu.SelectedIndex = GAME_FEILD_TAB;
+        }        
+
+        private void CorrectTileStates()
+        {
+            if((IAmX && XsTurn) || (!IAmX && !XsTurn))
+            {
+                btnSquare1.Enabled = (btnSquare1.Text == "");
+                btnSquare2.Enabled = (btnSquare2.Text == "");
+                btnSquare3.Enabled = (btnSquare3.Text == "");
+                btnSquare4.Enabled = (btnSquare4.Text == "");
+                btnSquare5.Enabled = (btnSquare5.Text == "");
+                btnSquare6.Enabled = (btnSquare6.Text == "");
+                btnSquare7.Enabled = (btnSquare7.Text == "");
+                btnSquare8.Enabled = (btnSquare8.Text == "");
+                btnSquare9.Enabled = (btnSquare9.Text == "");
+            }
+            else
+            {
+                btnSquare1.Enabled = btnSquare2.Enabled = btnSquare3.Enabled = btnSquare4.Enabled = btnSquare5.Enabled =
+                    btnSquare6.Enabled = btnSquare7.Enabled = btnSquare8.Enabled = btnSquare9.Enabled = false;
+            }
         }
     }
 }

@@ -350,19 +350,14 @@ namespace DotsNBoxes
                 {
                     ID = int.Parse(gameInfo[0]),
                     Name = gameInfo[1],
-                    MapSize = (GridSize)Enum.Parse(typeof(GridSize), gameInfo[2]),
-                    MaxPlayers = int.Parse(gameInfo[4]),
-                    IsFull = (int.Parse(gameInfo[4]) - int.Parse(gameInfo[3]) <= 0),
-                    PassProtected = bool.Parse(gameInfo[5])
+                    IsFull = (ServerGame.MAX_PLAYERS - int.Parse(gameInfo[2]) <= 0),
+                    PassProtected = bool.Parse(gameInfo[3])
                 };
 
                 //Generate list text for the current game
                 string listText = (gameToAdd.PassProtected ? "(L)" : "(O)") + " " + gameToAdd.Name;
                 while(listText.Length < GAME_NAME_LENGTH) { listText += " "; }
-                if(gameToAdd.MapSize == GridSize.FourByFour) { listText += "4X4"; }
-                else if (gameToAdd.MapSize == GridSize.SixBySix) { listText += "6X6"; }
-                else { listText += "8X8"; }
-                listText += "       " + gameInfo[3] + "/" + gameInfo[4];
+                listText += "         " + gameInfo[2] + "/" + ServerGame.MAX_PLAYERS;
 
                 //Add the current game to the list of games
                 ListItem newGame = new ListItem()
@@ -386,7 +381,7 @@ namespace DotsNBoxes
         /// <param name="passwordProtect">Whether or not the game should be password protected</param>
         /// <param name="password">The password to create the game with (if applicable)</param>
         /// <returns>Whether or not the game got created properly</returns>
-        public static bool CreateGame(string name, string maxPlayers, string gameSize, bool passwordProtect, string password)
+        public static bool CreateGame(string name, bool passwordProtect, string password)
         {
             string enryptedPasswordText = "";
             if(passwordProtect)
@@ -407,8 +402,7 @@ namespace DotsNBoxes
             }
 
             //Ask the server to create a game
-            string gameCreate = "GAME CREATE\r\n" + name + "\r\n" + maxPlayers + "\r\n" + gameSize + "\r\n" +
-                (passwordProtect ? enryptedPasswordText + "\r\n" : "") + "\r\n";
+            string gameCreate = "GAME CREATE\r\n" + name + "\r\n" + (passwordProtect ? enryptedPasswordText + "\r\n" : "") + "\r\n";
             serverSocket.Send(Encoding.UTF8.GetBytes(gameCreate));
 
             //Read in the server's response
@@ -532,6 +526,20 @@ namespace DotsNBoxes
 
             //Return the servers response to the ping
             return ServerRead();
+        }
+
+        /// <summary>
+        /// Asks the server to perform a move on a given tile
+        /// </summary>
+        /// <param name="move">The tile to move on</param>
+        public static void GameMove(string move)
+        {
+            //Ping the server
+            string gameMove = "GAME MOVE\r\n" + move + "\r\n\r\n";
+            serverSocket.Send(Encoding.UTF8.GetBytes(gameMove));
+
+            //Return the servers response to game move
+            ServerRead();
         }
 
         #endregion
@@ -669,15 +677,5 @@ namespace DotsNBoxes
         InvalidPassword,
         GameFull,
         Error
-    }
-
-    /// <summary>
-    /// An enumeration of the allowable grid sizes
-    /// </summary>
-    enum GridSize
-    {
-        FourByFour,
-        SixBySix,
-        EightByEight
     }
 }

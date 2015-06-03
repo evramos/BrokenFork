@@ -50,12 +50,6 @@
     <Compile Include="CustomTabControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="GameDisplay.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="GameDisplay.Designer.cs">
-      <DependentUpon>GameDisplay.cs</DependentUpon>
-    </Compile>
     <Compile Include="GameObjects.cs" />
     <Compile Include="GameServer.cs" />
     <Compile Include="MainMenu.cs">
@@ -66,9 +60,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="GameDisplay.resx">
-      <DependentUpon>GameDisplay.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="MainMenu.resx">
       <DependentUpon>MainMenu.cs</DependentUpon>
     </EmbeddedResource>
